@@ -30,6 +30,12 @@ p {
   margin-bottom: 1rem;
 }
 
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
 button {
   padding: 0.5rem 1.5rem;
   background: #333;
@@ -42,6 +48,14 @@ button {
 
 button:hover {
   background: #555;
+}
+
+#reset {
+  background: #999;
+}
+
+#reset:hover {
+  background: #bbb;
 }
 
 #output {

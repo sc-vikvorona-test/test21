@@ -63,3 +63,23 @@ button:hover {
   font-weight: bold;
   color: #333;
 }
+
+.message-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.message-form input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  flex: 1;
+}
+
+#msg-output {
+  margin-top: 1rem;
+  color: #333;
+}

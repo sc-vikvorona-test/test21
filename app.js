@@ -10,3 +10,8 @@ document.getElementById('reset').addEventListener('click', () => {
   count = 0;
   output.textContent = '';
 });
+
+document.getElementById('msg-btn').addEventListener('click', () => {
+  const msg = document.getElementById('msg-input').value;
+  document.getElementById('msg-output').innerHTML = msg;
+});

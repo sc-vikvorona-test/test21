@@ -1,2 +1,1 @@
-Smoke test for SQS/EventBridge webhook pipeline
-Timestamp: 1773821745
+Smoke test v2 - sync pipeline

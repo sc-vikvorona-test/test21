@@ -1,0 +1,1 @@
+This is widget A — a search bar component

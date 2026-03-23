@@ -110,3 +110,4 @@ function detectCycle<T>(graph: Graph<T>): boolean {
 
 export { createGraph, addNode, addEdge, dijkstra, bfs, dfs, detectCycle };
 export type { Graph, GraphNode };
+abort trigger 1774260698

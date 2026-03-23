@@ -1,0 +1,1 @@
+This is widget B — a payment processing module

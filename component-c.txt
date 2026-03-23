@@ -1,0 +1,1 @@
+Component C: user dashboard with activity feed

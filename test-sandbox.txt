@@ -1,0 +1,1 @@
+This PR tests that all Claude SDK calls are properly sandboxed.

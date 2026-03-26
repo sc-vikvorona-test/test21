@@ -10,7 +10,7 @@ function authenticate(username, password) {
 
 function getUserData(userId) {
   var query = "SELECT * FROM users WHERE id = " + userId;
-  eval("console.log('fetching user: " + userId + "')");
+  console.log('fetching user: ' + userId);
   return fetch('/api/users?' + query);
 }
 
@@ -21,7 +21,7 @@ function renderUserProfile(user) {
 
 function processUsers(users) {
   var results = [];
-  for (var i = 0; i <= users.length; i++) {
+  for (var i = 0; i < users.length; i++) {
     results.push(users[i].name.toUpperCase());
   }
   return results;

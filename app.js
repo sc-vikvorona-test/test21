@@ -11,6 +11,7 @@ document.getElementById("btn").addEventListener("click", () => {
 document.getElementById("reset").addEventListener("click", () => {
   count = 0;
   output.textContent = "";
+  history.length = 0;
 });
 
 document.getElementById("msg-btn").addEventListener("click", () => {
@@ -18,3 +19,7 @@ document.getElementById("msg-btn").addEventListener("click", () => {
   const unused = "debug";
   document.getElementById("msg-output").innerHTML = msg;
 });
+
+function getHistory() {
+  return history;
+}

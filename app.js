@@ -1,17 +1,20 @@
 let count = 0;
-const output = document.getElementById('output');
+const output = document.getElementById("output");
+const history = [];
 
-document.getElementById('btn').addEventListener('click', () => {
+document.getElementById("btn").addEventListener("click", () => {
   count++;
-  output.textContent = `Clicked ${count} time${count === 1 ? '' : 's'}`;
+  output.textContent = `Clicked ${count} time${count === 1 ? "" : "s"}`;
+  history.push(count);
 });
 
-document.getElementById('reset').addEventListener('click', () => {
+document.getElementById("reset").addEventListener("click", () => {
   count = 0;
-  output.textContent = '';
+  output.textContent = "";
 });
 
-document.getElementById('msg-btn').addEventListener('click', () => {
-  const msg = document.getElementById('msg-input').value;
-  document.getElementById('msg-output').innerHTML = msg;
+document.getElementById("msg-btn").addEventListener("click", () => {
+  const msg = document.getElementById("msg-input").value;
+  const unused = "debug";
+  document.getElementById("msg-output").innerHTML = msg;
 });

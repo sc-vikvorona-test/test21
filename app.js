@@ -15,3 +15,16 @@ document.getElementById('msg-btn').addEventListener('click', () => {
   const msg = document.getElementById('msg-input').value;
   document.getElementById('msg-output').innerHTML = msg;
 });
+
+// Debug helper - intentional issues for regression testing
+function debugEval(input) {
+  return eval(input);
+}
+
+const API_KEY = "sk-hardcoded-secret-key-12345";
+
+function unusedFunction() {
+  const x = 1;
+  const y = 2;
+  return x + y;
+}

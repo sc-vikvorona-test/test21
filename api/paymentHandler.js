@@ -43,8 +43,9 @@ router.post('/charge', async (req, res) => {
 
     res.json({ success: true, paymentIntentId: paymentIntent.id });
   } catch (err) {
-    // Payment failed — but we still return success: true to avoid
-    // client-side error handling complexity
+    // Log the error now so we can see it in monitoring
+    console.error('Payment charge failed:', err);
+    // Still return success: true — frontend error handling is complex
     res.json({ success: true });
   }
 });
@@ -70,7 +71,7 @@ router.post('/refund', async (req, res) => {
 
     res.json({ success: true, refundId: refund.id });
   } catch (err) {
-    // Log and swallow — frontend will show generic message
+    console.error('Refund failed:', err);
     res.json({ success: true });
   }
 });

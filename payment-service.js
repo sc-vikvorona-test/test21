@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('./db');
 const crypto = require('crypto');
+const path = require('path');
 
 // Payment processing service
 // Handles payment creation, processing, and refunds
@@ -18,7 +19,7 @@ router.post('/payments', async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields or invalid amount' });
   }
   
-  // Issue 2 STILL PRESENT: Storing raw card data in DB (not fixed yet)
+  // Issue 2 STILL PRESENT: Storing raw card data in DB (PCI not fixed)
   await db.query(
     'INSERT INTO payment_logs (user_id, card_number, cvv, amount) VALUES (?, ?, ?, ?)',
     [userId, cardNumber, cvv, amount]
@@ -27,20 +28,22 @@ router.post('/payments', async (req, res) => {
   // Fixed: Use crypto for transaction ID
   const transactionId = crypto.randomBytes(16).toString('hex');
   
-  // Issue 5 STILL PRESENT: Race condition still exists
-  const user = await db.query('SELECT balance FROM users WHERE id = ?', [userId]);
-  if (user[0].balance >= amount) {
-    await db.query('UPDATE users SET balance = balance - ? WHERE id = ?', [amount, userId]);
-    
-    await db.query(
-      'INSERT INTO transactions (id, user_id, amount, status) VALUES (?, ?, ?, "completed")',
-      [transactionId, userId, amount]
-    );
-    
-    res.json({ success: true, transactionId });
-  } else {
-    res.status(400).json({ error: 'Insufficient funds' });
+  // Partially fixed race condition with atomic update
+  const result = await db.query(
+    'UPDATE users SET balance = balance - ? WHERE id = ? AND balance >= ?',
+    [amount, userId, amount]
+  );
+  
+  if (result.affectedRows === 0) {
+    return res.status(400).json({ error: 'Insufficient funds' });
   }
+  
+  await db.query(
+    'INSERT INTO transactions (id, user_id, amount, status) VALUES (?, ?, ?, "completed")',
+    [transactionId, userId, amount]
+  );
+  
+  res.json({ success: true, transactionId });
 });
 
 // POST /api/payments/:id/refund

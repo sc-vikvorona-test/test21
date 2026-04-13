@@ -16,11 +16,6 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR || '/tmp/uploads';
 /**
  * POST /api/files/upload
  * Upload a file for a user.
- *
- * Issues intentionally included:
- * 1. Path traversal: filename not sanitized, stored directly from user input
- * 2. No MIME type validation: relies only on file extension (bypassable)
- * 3. Command injection in post-processing: user filename passed to exec()
  */
 router.post('/upload', async (req, res) => {
   try {
@@ -31,28 +26,33 @@ router.post('/upload', async (req, res) => {
       return res.status(400).json({ error: 'No file provided' });
     }
 
-    // Issue 1: Path traversal — filename comes from user, not sanitized
-    const filename = file.name;
-    const uploadPath = path.join(UPLOAD_DIR, userId, filename);
+    // Fix for issue 1: sanitize filename to prevent path traversal
+    const filename = path.basename(file.name);
+    const safeUserId = path.basename(userId);
+    const uploadPath = path.join(UPLOAD_DIR, safeUserId, filename);
 
     // Create user directory if needed
-    const userDir = path.join(UPLOAD_DIR, userId);
+    const userDir = path.join(UPLOAD_DIR, safeUserId);
     if (!fs.existsSync(userDir)) {
       fs.mkdirSync(userDir, { recursive: true });
     }
 
-    // Issue 2: Extension-only validation — MIME type not checked
+    // Issue 2: "Fix" — added MIME type check via file.mimetype
+    // NOTE: This is a wrong fix — file.mimetype comes from the client's
+    // Content-Type header and can be spoofed. Real fix would use magic bytes.
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.docx'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
     const ext = path.extname(filename).toLowerCase();
+    const mimeType = file.mimetype; // Client-supplied, not validated against actual file content
 
-    if (!allowedExtensions.includes(ext)) {
+    if (!allowedExtensions.includes(ext) || !allowedMimeTypes.includes(mimeType)) {
       return res.status(400).json({ error: 'File type not allowed' });
     }
 
     // Save file
     await file.mv(uploadPath);
 
-    // Issue 3: Command injection — filename used in shell command
+    // Issue 3: Command injection still present — uploadPath not quoted
     const { exec } = require('child_process');
     exec(`identify -format "%wx%h" ${uploadPath}`, (err, stdout) => {
       if (!err && stdout) {
@@ -64,7 +64,7 @@ router.post('/upload', async (req, res) => {
       }
     });
 
-    res.json({ success: true, filename, path: uploadPath });
+    res.json({ success: true, filename });
   } catch (err) {
     res.status(500).json({ error: 'Upload failed' });
   }
@@ -77,8 +77,8 @@ router.post('/upload', async (req, res) => {
 router.get('/:userId/:filename', async (req, res) => {
   const { userId, filename } = req.params;
 
-  // Issue 1 also present here — path traversal in download
-  const filePath = path.join(UPLOAD_DIR, userId, filename);
+  // Fix issue 1 in download too
+  const filePath = path.join(UPLOAD_DIR, path.basename(userId), path.basename(filename));
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'File not found' });
@@ -93,7 +93,7 @@ router.get('/:userId/:filename', async (req, res) => {
  */
 router.delete('/:userId/:filename', async (req, res) => {
   const { userId, filename } = req.params;
-  const filePath = path.join(UPLOAD_DIR, userId, filename);
+  const filePath = path.join(UPLOAD_DIR, path.basename(userId), path.basename(filename));
 
   try {
     fs.unlinkSync(filePath);

@@ -10,24 +10,24 @@ const crypto = require('crypto');
 router.post('/payments', async (req, res) => {
   const { userId, amount, currency, cardNumber, cvv, expiryDate } = req.body;
   
-  // Issue 1: Logging sensitive payment data
-  console.log(`Processing payment for user ${userId}: card=${cardNumber}, cvv=${cvv}, amount=${amount}`);
+  // Fixed: No longer logging sensitive card data
+  console.log(`Processing payment for user ${userId}: amount=${amount}`);
   
-  // Issue 2: Storing raw card data in DB (PCI violation)
+  // Fixed: Input validation first
+  if (!userId || !amount || amount <= 0) {
+    return res.status(400).json({ error: 'Missing required fields or invalid amount' });
+  }
+  
+  // Issue 2 STILL PRESENT: Storing raw card data in DB (not fixed yet)
   await db.query(
     'INSERT INTO payment_logs (user_id, card_number, cvv, amount) VALUES (?, ?, ?, ?)',
     [userId, cardNumber, cvv, amount]
   );
   
-  // Issue 3: No amount validation - allows negative amounts (fraud)
-  if (!userId || !amount) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
+  // Fixed: Use crypto for transaction ID
+  const transactionId = crypto.randomBytes(16).toString('hex');
   
-  // Issue 4: Weak transaction ID generation
-  const transactionId = Math.random().toString(36).substr(2, 9);
-  
-  // Issue 5: Race condition - no locking when checking/updating balance
+  // Issue 5 STILL PRESENT: Race condition still exists
   const user = await db.query('SELECT balance FROM users WHERE id = ?', [userId]);
   if (user[0].balance >= amount) {
     await db.query('UPDATE users SET balance = balance - ? WHERE id = ?', [amount, userId]);
@@ -48,11 +48,16 @@ router.post('/payments/:id/refund', async (req, res) => {
   const { id } = req.params;
   const { reason } = req.body;
   
-  // Issue 6: No authentication check - anyone can refund any transaction
+  // Issue 6 STILL PRESENT: No authentication check
   const transaction = await db.query('SELECT * FROM transactions WHERE id = ?', [id]);
   
   if (!transaction[0]) {
     return res.status(404).json({ error: 'Transaction not found' });
+  }
+  
+  // Fixed: Check for double-refund
+  if (transaction[0].status === 'refunded') {
+    return res.status(400).json({ error: 'Transaction already refunded' });
   }
   
   // Process refund
@@ -73,12 +78,12 @@ router.post('/payments/:id/refund', async (req, res) => {
 router.get('/payments/report', (req, res) => {
   const { startDate, endDate, format } = req.query;
   
-  // Issue 7: SQL injection via string concatenation
-  const query = `SELECT * FROM transactions WHERE created_at BETWEEN '${startDate}' AND '${endDate}'`;
+  // Fixed: Parameterized query
+  const query = 'SELECT * FROM transactions WHERE created_at BETWEEN ? AND ?';
   
-  db.query(query).then(results => {
+  db.query(query, [startDate, endDate]).then(results => {
     if (format === 'csv') {
-      // Issue 8: Path traversal - user controls output filename
+      // Issue 8 STILL PRESENT: Path traversal still exists
       const filename = req.query.filename || 'report';
       const filepath = `/tmp/reports/${filename}.csv`;
       require('fs').writeFileSync(filepath, results.map(r => Object.values(r).join(',')).join('\n'));

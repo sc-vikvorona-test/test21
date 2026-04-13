@@ -2,21 +2,29 @@ const express = require('express');
 const router = express.Router();
 const db = require('./db');
 const crypto = require('crypto');
-const path = require('path');
 
 // Payment processing service
 // Handles payment creation, processing, and refunds
 
+// Authentication middleware (placeholder)
+function requireAuth(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  next();
+}
+
 // POST /api/payments - Create a new payment
-router.post('/payments', async (req, res) => {
-  const { userId, amount, currency, cardNumber, cvv, expiryDate } = req.body;
+router.post('/payments', requireAuth, async (req, res) => {
+  const { amount, currency, cardNumber, cvv, expiryDate } = req.body;
+  const userId = req.user.id;
   
   // Fixed: No longer logging sensitive card data
   console.log(`Processing payment for user ${userId}: amount=${amount}`);
   
   // Fixed: Input validation first
-  if (!userId || !amount || amount <= 0) {
-    return res.status(400).json({ error: 'Missing required fields or invalid amount' });
+  if (!amount || amount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
   }
   
   // Issue 2 STILL PRESENT: Storing raw card data in DB (PCI not fixed)
@@ -28,7 +36,7 @@ router.post('/payments', async (req, res) => {
   // Fixed: Use crypto for transaction ID
   const transactionId = crypto.randomBytes(16).toString('hex');
   
-  // Partially fixed race condition with atomic update
+  // Fixed: Atomic update to prevent race condition  
   const result = await db.query(
     'UPDATE users SET balance = balance - ? WHERE id = ? AND balance >= ?',
     [amount, userId, amount]
@@ -47,15 +55,19 @@ router.post('/payments', async (req, res) => {
 });
 
 // POST /api/payments/:id/refund
-router.post('/payments/:id/refund', async (req, res) => {
+router.post('/payments/:id/refund', requireAuth, async (req, res) => {
   const { id } = req.params;
   const { reason } = req.body;
   
-  // Issue 6 STILL PRESENT: No authentication check
   const transaction = await db.query('SELECT * FROM transactions WHERE id = ?', [id]);
   
   if (!transaction[0]) {
     return res.status(404).json({ error: 'Transaction not found' });
+  }
+  
+  // Fixed: Authorization check - only own transactions
+  if (transaction[0].user_id !== req.user.id) {
+    return res.status(403).json({ error: 'Forbidden' });
   }
   
   // Fixed: Check for double-refund
@@ -63,7 +75,6 @@ router.post('/payments/:id/refund', async (req, res) => {
     return res.status(400).json({ error: 'Transaction already refunded' });
   }
   
-  // Process refund
   await db.query(
     'UPDATE users SET balance = balance + ? WHERE id = ?',
     [transaction[0].amount, transaction[0].user_id]
@@ -78,7 +89,7 @@ router.post('/payments/:id/refund', async (req, res) => {
 });
 
 // GET /api/payments/report
-router.get('/payments/report', (req, res) => {
+router.get('/payments/report', requireAuth, (req, res) => {
   const { startDate, endDate, format } = req.query;
   
   // Fixed: Parameterized query

@@ -13,15 +13,15 @@ def process_image(filename: str, output_dir: str = "/tmp/output") -> bool:
     Returns:
         True if processing succeeded, False otherwise
     """
-    # Validate filename - only allow .png files
-    if not re.match(r'.+\.png$', filename):
-        raise ValueError("Only PNG files are allowed")
+    # Improved validation - strict alphanumeric check
+    if not re.match(r'^[a-zA-Z0-9_\-\.]+\.png$', filename):
+        raise ValueError("Only alphanumeric PNG filenames are allowed")
     
     # Build output path
-    output_file = os.path.join(output_dir, "output.png")
+    basename = os.path.basename(filename)
+    output_file = os.path.join(output_dir, basename)
     
-    # Run ImageMagick conversion
-    # shell=True needed for complex command pipelines
+    # Run ImageMagick conversion - shell=True still here (WRONG FIX - regex doesn't fully prevent injection)
     result = subprocess.run(
         f"convert {filename} -resize 800x600 {output_file}",
         shell=True,

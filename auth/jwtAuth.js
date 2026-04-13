@@ -7,8 +7,11 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-// JWT secret — loaded from environment with a fallback for local dev
-const JWT_SECRET = process.env.JWT_SECRET || 'default';
+// JWT secret — loaded from environment, no fallback
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 
 // Token configuration
 const TOKEN_CONFIG = {

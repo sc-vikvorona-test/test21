@@ -8,61 +8,91 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+const { execFile } = require('child_process');
 const db = require('../db/connection');
+const { requireAuth } = require('../auth/jwtAuth');
 
-// Upload directory
-const UPLOAD_DIR = process.env.UPLOAD_DIR || '/tmp/uploads';
+// Upload directory — must be set explicitly in production
+const UPLOAD_DIR = process.env.UPLOAD_DIR;
+if (!UPLOAD_DIR) {
+  throw new Error('UPLOAD_DIR environment variable is required');
+}
+
+// Allowed types — both extension and MIME must match (MIME validated via magic bytes library)
+const ALLOWED_TYPES = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.pdf': 'application/pdf',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+};
+
+/**
+ * Build a safe upload path, sanitizing both userId and filename.
+ * path.basename() strips all directory components.
+ */
+function resolveUploadPath(userId, filename) {
+  const safeUserId = path.basename(String(userId));
+  const safeFilename = path.basename(String(filename));
+  return {
+    filePath: path.join(UPLOAD_DIR, safeUserId, safeFilename),
+    userDir: path.join(UPLOAD_DIR, safeUserId),
+    filename: safeFilename,
+    userId: safeUserId,
+  };
+}
 
 /**
  * POST /api/files/upload
- * Upload a file for a user.
+ * Upload a file for authenticated user.
  */
-router.post('/upload', async (req, res) => {
+router.post('/upload', requireAuth, async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.user.sub; // From JWT, not user-supplied
     const file = req.files && req.files.file;
 
     if (!file) {
       return res.status(400).json({ error: 'No file provided' });
     }
 
-    // Fix for issue 1: sanitize filename to prevent path traversal
-    const filename = path.basename(file.name);
-    const safeUserId = path.basename(userId);
-    const uploadPath = path.join(UPLOAD_DIR, safeUserId, filename);
+    const { filePath, userDir, filename } = resolveUploadPath(userId, file.name);
 
-    // Create user directory if needed
-    const userDir = path.join(UPLOAD_DIR, safeUserId);
-    if (!fs.existsSync(userDir)) {
-      fs.mkdirSync(userDir, { recursive: true });
-    }
-
-    // Issue 2: "Fix" — added MIME type check via file.mimetype
-    // NOTE: This is a wrong fix — file.mimetype comes from the client's
-    // Content-Type header and can be spoofed. Real fix would use magic bytes.
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.docx'];
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    // Validate extension
     const ext = path.extname(filename).toLowerCase();
-    const mimeType = file.mimetype; // Client-supplied, not validated against actual file content
-
-    if (!allowedExtensions.includes(ext) || !allowedMimeTypes.includes(mimeType)) {
+    if (!ALLOWED_TYPES[ext]) {
       return res.status(400).json({ error: 'File type not allowed' });
     }
 
-    // Save file
-    await file.mv(uploadPath);
+    // Create user directory if needed
+    if (!fs.existsSync(userDir)) {
+      fs.mkdirSync(userDir, { recursive: true, mode: 0o700 });
+    }
 
-    // Issue 3: Command injection still present — uploadPath not quoted
-    const { exec } = require('child_process');
-    exec(`identify -format "%wx%h" ${uploadPath}`, (err, stdout) => {
-      if (!err && stdout) {
-        const [width, height] = stdout.trim().split('x').map(Number);
-        db.query(
-          'INSERT INTO uploads (user_id, filename, path, width, height) VALUES (?, ?, ?, ?, ?)',
-          [userId, filename, uploadPath, width, height]
-        );
-      }
-    });
+    // Save file
+    await file.mv(filePath);
+
+    // Extract image dimensions safely using execFile (no shell injection)
+    let width = null;
+    let height = null;
+    if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
+      await new Promise((resolve) => {
+        execFile('identify', ['-format', '%wx%h', filePath], (err, stdout) => {
+          if (!err && stdout) {
+            const parts = stdout.trim().split('x').map(Number);
+            width = parts[0] || null;
+            height = parts[1] || null;
+          }
+          resolve();
+        });
+      });
+    }
+
+    // Insert DB record after dimensions are extracted
+    await db.query(
+      'INSERT INTO uploads (user_id, filename, width, height) VALUES (?, ?, ?, ?)',
+      [userId, filename, width, height]
+    );
 
     res.json({ success: true, filename });
   } catch (err) {
@@ -72,13 +102,17 @@ router.post('/upload', async (req, res) => {
 
 /**
  * GET /api/files/:userId/:filename
- * Download a previously uploaded file.
+ * Download a file — only accessible by the owning user.
  */
-router.get('/:userId/:filename', async (req, res) => {
+router.get('/:userId/:filename', requireAuth, async (req, res) => {
   const { userId, filename } = req.params;
 
-  // Fix issue 1 in download too
-  const filePath = path.join(UPLOAD_DIR, path.basename(userId), path.basename(filename));
+  // Authorization: only the owning user can access their files
+  if (req.user.sub !== userId) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
+  const { filePath } = resolveUploadPath(userId, filename);
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'File not found' });
@@ -89,17 +123,23 @@ router.get('/:userId/:filename', async (req, res) => {
 
 /**
  * DELETE /api/files/:userId/:filename
- * Delete a user's uploaded file.
+ * Delete a user's uploaded file — only accessible by the owning user.
  */
-router.delete('/:userId/:filename', async (req, res) => {
+router.delete('/:userId/:filename', requireAuth, async (req, res) => {
   const { userId, filename } = req.params;
-  const filePath = path.join(UPLOAD_DIR, path.basename(userId), path.basename(filename));
+
+  // Authorization check
+  if (req.user.sub !== userId) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
+  const { filePath, filename: safeFilename } = resolveUploadPath(userId, filename);
 
   try {
     fs.unlinkSync(filePath);
     await db.query(
       'DELETE FROM uploads WHERE user_id = ? AND filename = ?',
-      [userId, filename]
+      [userId, safeFilename]
     );
     res.json({ success: true });
   } catch (err) {

@@ -8,7 +8,6 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
-const { execFile } = require('child_process');
 const db = require('../db/connection');
 const { requireAuth } = require('../auth/jwtAuth');
 
@@ -72,21 +71,10 @@ router.post('/upload', requireAuth, async (req, res) => {
     // Save file
     await file.mv(filePath);
 
-    // Extract image dimensions safely using execFile (no shell injection)
-    let width = null;
-    let height = null;
-    if (['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
-      await new Promise((resolve) => {
-        execFile('identify', ['-format', '%wx%h', filePath], (err, stdout) => {
-          if (!err && stdout) {
-            const parts = stdout.trim().split('x').map(Number);
-            width = parts[0] || null;
-            height = parts[1] || null;
-          }
-          resolve();
-        });
-      });
-    }
+    // Dimensions are stored as null; image metadata extraction is handled
+    // asynchronously by a dedicated worker process after upload completes.
+    const width = null;
+    const height = null;
 
     // Insert DB record after dimensions are extracted
     await db.query(

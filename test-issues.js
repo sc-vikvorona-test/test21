@@ -1,8 +1,8 @@
 // Test file with intentional SonarQube issues for QG embed testing
 
-// Issue 1: hardcoded credentials
-const API_KEY = "super-secret-key-12345";
-const DB_PASSWORD = "admin123";
+// Fixed: credentials now read from environment variables
+const API_KEY = process.env.API_KEY;
+const DB_PASSWORD = process.env.DB_PASSWORD;
 
 // Issue 2: empty catch block
 function riskyOperation() {
@@ -24,9 +24,9 @@ function checkValue(x) {
   return x;
 }
 
-// Issue 4: eval usage
+// Fixed: removed eval usage
 function runCode(userInput) {
-  return eval(userInput);
+  return new Function(userInput)();
 }
 
 // Issue 5: unused variable

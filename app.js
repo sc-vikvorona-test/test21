@@ -22,9 +22,9 @@ function searchUsers(db, userInput) {
   return db.query(query);
 }
 
-// Eval usage
+// Safe JSON parsing instead of eval
 function runCode(userCode) {
-  return eval(userCode);
+  return JSON.parse(userCode);
 }
 
 // Empty catch block

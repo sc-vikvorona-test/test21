@@ -15,3 +15,33 @@ document.getElementById('msg-btn').addEventListener('click', () => {
   const msg = document.getElementById('msg-input').value;
   document.getElementById('msg-output').innerHTML = msg;
 });
+
+// User search with SQL injection risk
+function searchUsers(db, userInput) {
+  const query = "SELECT * FROM users WHERE name = '" + userInput + "'";
+  return db.query(query);
+}
+
+// Eval usage
+function runCode(userCode) {
+  return eval(userCode);
+}
+
+// Empty catch block
+function parseData(data) {
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+  }
+}
+
+// Weak comparison
+function checkAge(age) {
+  if (age == 18) {
+    return true;
+  }
+  return false;
+}
+
+// Password in code
+const adminPassword = "hunter2";

@@ -8,7 +8,7 @@ document.getElementById('btn').addEventListener('click', () => {
 
 document.getElementById('reset').addEventListener('click', () => {
   count = 0;
-  output.textContent = '';
+  output.textContent = 'Reset!';
 });
 
 document.getElementById('msg-btn').addEventListener('click', () => {

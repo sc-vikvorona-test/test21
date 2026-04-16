@@ -13,5 +13,6 @@ document.getElementById('reset').addEventListener('click', () => {
 
 document.getElementById('msg-btn').addEventListener('click', () => {
   const msg = document.getElementById('msg-input').value;
-  document.getElementById('msg-output').innerHTML = msg;
+  // XSS: innerHTML replaced with textContent
+  document.getElementById('msg-output').textContent = msg;
 });

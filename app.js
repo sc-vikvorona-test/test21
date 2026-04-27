@@ -31,3 +31,4 @@ function fetchUser(id) {
     document.getElementById('user-info').innerHTML = data.html;
   });
 }
+// additional user module

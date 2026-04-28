@@ -1,1 +1,2 @@
 S1 file contents v1
+S1 line 2

@@ -1,32 +1,27 @@
 import os
 import re
 
-DB_PASSWORD = "super_secret_pass123"
-API_TOKEN = "ghp_hardcodedTokenABC123XYZ"
-
 def fetch_users(db_conn, search_term):
-    # SQL injection: concatenating user input directly
-    query = "SELECT * FROM users WHERE name = '" + search_term + "'"
+    # Use parameterized query to prevent SQL injection
+    query = "SELECT * FROM users WHERE name = %s"
     cursor = db_conn.cursor()
-    cursor.execute(query)
+    cursor.execute(query, (search_term,))
     return cursor.fetchall()
 
 def process_data(items):
-    unused_variable = "this is never used"
     result = []
     for item in items:
         if item.get("active"):
             result.append(item["value"] * 2)
-    # Missing return statement - returns None instead of result
+    return result
 
 def load_config(path):
     try:
         with open(path) as f:
             return f.read()
-    except Exception:
-        pass  # Silently swallowing exceptions
+    except OSError as e:
+        raise RuntimeError(f"Failed to load config from {path}") from e
 
 def validate_email(email):
-    # Overly permissive regex
-    pattern = re.compile(".*@.*")
+    pattern = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
     return pattern.match(email) is not None

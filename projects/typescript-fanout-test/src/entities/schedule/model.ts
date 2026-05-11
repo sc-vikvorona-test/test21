@@ -1,0 +1,69 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Schedule {
+        id: string;
+name: string;
+cron: string;
+ownerId: string;
+active: boolean;
+nextRunAt: Date | null;
+createdAt: Date | null;
+      }
+
+      export interface ScheduleCreate {
+        name: string;
+cron: string;
+ownerId: string;
+active: boolean;
+nextRunAt: Date | null;
+      }
+
+      export interface ScheduleUpdate {
+        name?: string;
+cron?: string;
+ownerId?: string;
+active?: boolean;
+nextRunAt?: Date | null;
+createdAt?: Date | null;
+      }
+
+      export const ScheduleFields = ['id', 'name', 'cron', 'ownerId', 'active', 'nextRunAt', 'createdAt'] as const;
+      export type ScheduleField = (typeof ScheduleFields)[number];
+
+      /** Construct a new Schedule with sensible defaults for optional fields. */
+      export function makeSchedule(input: Partial<Schedule> & { id: string }): Schedule {
+        return {
+          id: input.id,
+          name: input.name ?? '',
+          cron: input.cron ?? '',
+          ownerId: input.ownerId ?? '',
+          active: input.active ?? false,
+          nextRunAt: input.nextRunAt ?? null,
+          createdAt: input.createdAt ?? null,
+        } as Schedule;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateSchedule(current: Schedule, patch: ScheduleUpdate): Schedule {
+        const merged: Schedule = { ...current };
+        for (const key of Object.keys(patch) as ScheduleField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickScheduleFields(entity: Schedule, fields: ScheduleField[]): Partial<Schedule> {
+        const out: Partial<Schedule> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneSchedule(entity: Schedule): Schedule {
+        return JSON.parse(JSON.stringify(entity)) as Schedule;
+      }

@@ -1,0 +1,41 @@
+      import type { GpgKeyCreate, GpgKeyUpdate } from './model';
+
+      export function validateGpgKeyCreate(input: GpgKeyCreate): string[] {
+        const errors: string[] = [];
+        if (input.ownerId !== undefined && typeof input.ownerId !== 'string') errors.push('ownerId must be a string');
+if (input.fingerprint !== undefined && typeof input.fingerprint !== 'string') errors.push('fingerprint must be a string');
+if (input.publicKey !== undefined && typeof input.publicKey !== 'string') errors.push('publicKey must be a string');
+if (input.expiresAt !== undefined && input.expiresAt !== null && !(input.expiresAt instanceof Date)) errors.push('expiresAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateGpgKeyUpdate(input: GpgKeyUpdate): string[] {
+        const errors: string[] = [];
+        if (input.ownerId !== undefined && typeof input.ownerId !== 'string') errors.push('ownerId must be a string');
+if (input.fingerprint !== undefined && typeof input.fingerprint !== 'string') errors.push('fingerprint must be a string');
+if (input.publicKey !== undefined && typeof input.publicKey !== 'string') errors.push('publicKey must be a string');
+if (input.expiresAt !== undefined && input.expiresAt !== null && !(input.expiresAt instanceof Date)) errors.push('expiresAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidGpgKeyCreate(input: GpgKeyCreate): boolean {
+        return validateGpgKeyCreate(input).length === 0;
+      }
+
+      export function isValidGpgKeyUpdate(input: GpgKeyUpdate): boolean {
+        return validateGpgKeyUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownGpgKeyField(field: string): boolean {
+        return [
+          'id',
+  'ownerId',
+  'fingerprint',
+  'publicKey',
+  'expiresAt',
+  'createdAt',
+        ].includes(field);
+      }

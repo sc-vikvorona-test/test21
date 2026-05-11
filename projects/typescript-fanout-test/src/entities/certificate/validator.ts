@@ -1,0 +1,44 @@
+      import type { CertificateCreate, CertificateUpdate } from './model';
+
+      export function validateCertificateCreate(input: CertificateCreate): string[] {
+        const errors: string[] = [];
+        if (input.subject !== undefined && typeof input.subject !== 'string') errors.push('subject must be a string');
+if (input.issuer !== undefined && typeof input.issuer !== 'string') errors.push('issuer must be a string');
+if (input.notBeforeAt !== undefined && input.notBeforeAt !== null && !(input.notBeforeAt instanceof Date)) errors.push('notBeforeAt must be a Date or null');
+if (input.notAfterAt !== undefined && input.notAfterAt !== null && !(input.notAfterAt instanceof Date)) errors.push('notAfterAt must be a Date or null');
+if (input.fingerprint !== undefined && typeof input.fingerprint !== 'string') errors.push('fingerprint must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateCertificateUpdate(input: CertificateUpdate): string[] {
+        const errors: string[] = [];
+        if (input.subject !== undefined && typeof input.subject !== 'string') errors.push('subject must be a string');
+if (input.issuer !== undefined && typeof input.issuer !== 'string') errors.push('issuer must be a string');
+if (input.notBeforeAt !== undefined && input.notBeforeAt !== null && !(input.notBeforeAt instanceof Date)) errors.push('notBeforeAt must be a Date or null');
+if (input.notAfterAt !== undefined && input.notAfterAt !== null && !(input.notAfterAt instanceof Date)) errors.push('notAfterAt must be a Date or null');
+if (input.fingerprint !== undefined && typeof input.fingerprint !== 'string') errors.push('fingerprint must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidCertificateCreate(input: CertificateCreate): boolean {
+        return validateCertificateCreate(input).length === 0;
+      }
+
+      export function isValidCertificateUpdate(input: CertificateUpdate): boolean {
+        return validateCertificateUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownCertificateField(field: string): boolean {
+        return [
+          'id',
+  'subject',
+  'issuer',
+  'notBeforeAt',
+  'notAfterAt',
+  'fingerprint',
+  'createdAt',
+        ].includes(field);
+      }

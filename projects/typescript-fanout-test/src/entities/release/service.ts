@@ -1,0 +1,119 @@
+import type { Release, ReleaseCreate, ReleaseUpdate } from './model';
+import { ReleaseRepository, ReleaseNotFoundError } from './repository';
+import { validateReleaseCreate, validateReleaseUpdate } from './validator';
+
+export interface ReleaseServiceDeps {
+  repository: ReleaseRepository;
+  clock?: () => Date;
+  logger?: (msg: string, meta?: Record<string, unknown>) => void;
+}
+
+export interface ListReleaseOptions {
+  offset?: number;
+  limit?: number;
+  sortBy?: keyof Release;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Business-logic layer above ReleaseRepository. Performs validation, dispatches
+ * derived events, and surfaces structured errors. Synchronous to keep the fixture
+ * deterministic for tests.
+ */
+export class ReleaseService {
+  private readonly repo: ReleaseRepository;
+  private readonly clock: () => Date;
+  private readonly logger: (msg: string, meta?: Record<string, unknown>) => void;
+
+  constructor(deps: ReleaseServiceDeps) {
+    this.repo = deps.repository;
+    this.clock = deps.clock ?? (() => new Date());
+    this.logger = deps.logger ?? (() => { /* noop */ });
+  }
+
+  create(input: ReleaseCreate): Release {
+    const errors = validateReleaseCreate(input);
+    if (errors.length > 0) throw new ReleaseValidationError(errors);
+    const created = this.repo.insert(input);
+    this.logger('ReleaseService.create', { id: created.id });
+    return created;
+  }
+
+  get(id: string): Release {
+    try {
+      return this.repo.requireById(id);
+    } catch (err) {
+      if (err instanceof ReleaseNotFoundError) throw err;
+      throw new ReleaseServiceError(`get failed: ${(err as Error).message}`);
+    }
+  }
+
+  tryGet(id: string): Release | undefined {
+    return this.repo.findById(id);
+  }
+
+  update(id: string, patch: ReleaseUpdate): Release {
+    const errors = validateReleaseUpdate(patch);
+    if (errors.length > 0) throw new ReleaseValidationError(errors);
+    const updated = this.repo.update(id, patch);
+    this.logger('ReleaseService.update', { id });
+    return updated;
+  }
+
+  delete(id: string): void {
+    const existed = this.repo.delete(id);
+    if (!existed) throw new ReleaseNotFoundError(id);
+    this.logger('ReleaseService.delete', { id });
+  }
+
+  list(options: ListReleaseOptions = {}): Release[] {
+    const offset = options.offset ?? 0;
+    const limit = options.limit ?? 50;
+    if (options.sortBy) {
+      const sorted = this.repo.sortedBy(options.sortBy, options.order);
+      return sorted.slice(offset, offset + limit);
+    }
+    return this.repo.paginate(offset, limit);
+  }
+
+  countAll(): number {
+    return this.repo.count();
+  }
+
+  batchCreate(inputs: ReleaseCreate[]): Release[] {
+    for (const input of inputs) {
+      const errors = validateReleaseCreate(input);
+      if (errors.length > 0) throw new ReleaseValidationError(errors);
+    }
+    return this.repo.batchInsert(inputs);
+  }
+
+  exists(id: string): boolean {
+    return this.repo.findById(id) !== undefined;
+  }
+
+  /** Bulk delete with no failure semantics; safe to call with non-existent ids. */
+  bulkDelete(ids: string[]): number {
+    let deleted = 0;
+    for (const id of ids) if (this.repo.delete(id)) deleted++;
+    return deleted;
+  }
+
+  searchByField<K extends keyof Release>(field: K, value: Release[K]): Release[] {
+    return this.repo.filter((entity) => entity[field] === value);
+  }
+}
+
+export class ReleaseServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ReleaseServiceError';
+  }
+}
+
+export class ReleaseValidationError extends Error {
+  constructor(public readonly errors: string[]) {
+    super(`Release validation failed: ${errors.join('; ')}`);
+    this.name = 'ReleaseValidationError';
+  }
+}

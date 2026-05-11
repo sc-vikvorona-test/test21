@@ -1,0 +1,47 @@
+      import type { TaskCreate, TaskUpdate } from './model';
+
+      export function validateTaskCreate(input: TaskCreate): string[] {
+        const errors: string[] = [];
+        if (input.title !== undefined && typeof input.title !== 'string') errors.push('title must be a string');
+if (input.projectId !== undefined && typeof input.projectId !== 'string') errors.push('projectId must be a string');
+if (input.assigneeId !== undefined && typeof input.assigneeId !== 'string') errors.push('assigneeId must be a string');
+if (input.status !== undefined && typeof input.status !== 'string') errors.push('status must be a string');
+if (input.priority !== undefined && typeof input.priority !== 'string') errors.push('priority must be a string');
+if (input.dueAt !== undefined && input.dueAt !== null && !(input.dueAt instanceof Date)) errors.push('dueAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateTaskUpdate(input: TaskUpdate): string[] {
+        const errors: string[] = [];
+        if (input.title !== undefined && typeof input.title !== 'string') errors.push('title must be a string');
+if (input.projectId !== undefined && typeof input.projectId !== 'string') errors.push('projectId must be a string');
+if (input.assigneeId !== undefined && typeof input.assigneeId !== 'string') errors.push('assigneeId must be a string');
+if (input.status !== undefined && typeof input.status !== 'string') errors.push('status must be a string');
+if (input.priority !== undefined && typeof input.priority !== 'string') errors.push('priority must be a string');
+if (input.dueAt !== undefined && input.dueAt !== null && !(input.dueAt instanceof Date)) errors.push('dueAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidTaskCreate(input: TaskCreate): boolean {
+        return validateTaskCreate(input).length === 0;
+      }
+
+      export function isValidTaskUpdate(input: TaskUpdate): boolean {
+        return validateTaskUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownTaskField(field: string): boolean {
+        return [
+          'id',
+  'title',
+  'projectId',
+  'assigneeId',
+  'status',
+  'priority',
+  'dueAt',
+  'createdAt',
+        ].includes(field);
+      }

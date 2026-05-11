@@ -1,0 +1,65 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Credential {
+        id: string;
+name: string;
+ownerId: string;
+kind: string;
+expiresAt: Date | null;
+createdAt: Date | null;
+      }
+
+      export interface CredentialCreate {
+        name: string;
+ownerId: string;
+kind: string;
+expiresAt: Date | null;
+      }
+
+      export interface CredentialUpdate {
+        name?: string;
+ownerId?: string;
+kind?: string;
+expiresAt?: Date | null;
+createdAt?: Date | null;
+      }
+
+      export const CredentialFields = ['id', 'name', 'ownerId', 'kind', 'expiresAt', 'createdAt'] as const;
+      export type CredentialField = (typeof CredentialFields)[number];
+
+      /** Construct a new Credential with sensible defaults for optional fields. */
+      export function makeCredential(input: Partial<Credential> & { id: string }): Credential {
+        return {
+          id: input.id,
+          name: input.name ?? '',
+          ownerId: input.ownerId ?? '',
+          kind: input.kind ?? '',
+          expiresAt: input.expiresAt ?? null,
+          createdAt: input.createdAt ?? null,
+        } as Credential;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateCredential(current: Credential, patch: CredentialUpdate): Credential {
+        const merged: Credential = { ...current };
+        for (const key of Object.keys(patch) as CredentialField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickCredentialFields(entity: Credential, fields: CredentialField[]): Partial<Credential> {
+        const out: Partial<Credential> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneCredential(entity: Credential): Credential {
+        return JSON.parse(JSON.stringify(entity)) as Credential;
+      }

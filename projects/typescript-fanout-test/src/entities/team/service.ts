@@ -1,0 +1,119 @@
+import type { Team, TeamCreate, TeamUpdate } from './model';
+import { TeamRepository, TeamNotFoundError } from './repository';
+import { validateTeamCreate, validateTeamUpdate } from './validator';
+
+export interface TeamServiceDeps {
+  repository: TeamRepository;
+  clock?: () => Date;
+  logger?: (msg: string, meta?: Record<string, unknown>) => void;
+}
+
+export interface ListTeamOptions {
+  offset?: number;
+  limit?: number;
+  sortBy?: keyof Team;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Business-logic layer above TeamRepository. Performs validation, dispatches
+ * derived events, and surfaces structured errors. Synchronous to keep the fixture
+ * deterministic for tests.
+ */
+export class TeamService {
+  private readonly repo: TeamRepository;
+  private readonly clock: () => Date;
+  private readonly logger: (msg: string, meta?: Record<string, unknown>) => void;
+
+  constructor(deps: TeamServiceDeps) {
+    this.repo = deps.repository;
+    this.clock = deps.clock ?? (() => new Date());
+    this.logger = deps.logger ?? (() => { /* noop */ });
+  }
+
+  create(input: TeamCreate): Team {
+    const errors = validateTeamCreate(input);
+    if (errors.length > 0) throw new TeamValidationError(errors);
+    const created = this.repo.insert(input);
+    this.logger('TeamService.create', { id: created.id });
+    return created;
+  }
+
+  get(id: string): Team {
+    try {
+      return this.repo.requireById(id);
+    } catch (err) {
+      if (err instanceof TeamNotFoundError) throw err;
+      throw new TeamServiceError(`get failed: ${(err as Error).message}`);
+    }
+  }
+
+  tryGet(id: string): Team | undefined {
+    return this.repo.findById(id);
+  }
+
+  update(id: string, patch: TeamUpdate): Team {
+    const errors = validateTeamUpdate(patch);
+    if (errors.length > 0) throw new TeamValidationError(errors);
+    const updated = this.repo.update(id, patch);
+    this.logger('TeamService.update', { id });
+    return updated;
+  }
+
+  delete(id: string): void {
+    const existed = this.repo.delete(id);
+    if (!existed) throw new TeamNotFoundError(id);
+    this.logger('TeamService.delete', { id });
+  }
+
+  list(options: ListTeamOptions = {}): Team[] {
+    const offset = options.offset ?? 0;
+    const limit = options.limit ?? 50;
+    if (options.sortBy) {
+      const sorted = this.repo.sortedBy(options.sortBy, options.order);
+      return sorted.slice(offset, offset + limit);
+    }
+    return this.repo.paginate(offset, limit);
+  }
+
+  countAll(): number {
+    return this.repo.count();
+  }
+
+  batchCreate(inputs: TeamCreate[]): Team[] {
+    for (const input of inputs) {
+      const errors = validateTeamCreate(input);
+      if (errors.length > 0) throw new TeamValidationError(errors);
+    }
+    return this.repo.batchInsert(inputs);
+  }
+
+  exists(id: string): boolean {
+    return this.repo.findById(id) !== undefined;
+  }
+
+  /** Bulk delete with no failure semantics; safe to call with non-existent ids. */
+  bulkDelete(ids: string[]): number {
+    let deleted = 0;
+    for (const id of ids) if (this.repo.delete(id)) deleted++;
+    return deleted;
+  }
+
+  searchByField<K extends keyof Team>(field: K, value: Team[K]): Team[] {
+    return this.repo.filter((entity) => entity[field] === value);
+  }
+}
+
+export class TeamServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TeamServiceError';
+  }
+}
+
+export class TeamValidationError extends Error {
+  constructor(public readonly errors: string[]) {
+    super(`Team validation failed: ${errors.join('; ')}`);
+    this.name = 'TeamValidationError';
+  }
+}

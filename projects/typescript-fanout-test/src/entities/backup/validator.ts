@@ -1,0 +1,42 @@
+      import type { BackupCreate, BackupUpdate } from './model';
+
+      export function validateBackupCreate(input: BackupCreate): string[] {
+        const errors: string[] = [];
+        if (input.subjectId !== undefined && typeof input.subjectId !== 'string') errors.push('subjectId must be a string');
+if (input.subjectKind !== undefined && typeof input.subjectKind !== 'string') errors.push('subjectKind must be a string');
+if (input.status !== undefined && typeof input.status !== 'string') errors.push('status must be a string');
+if (input.startedAt !== undefined && input.startedAt !== null && !(input.startedAt instanceof Date)) errors.push('startedAt must be a Date or null');
+if (input.completedAt !== undefined && input.completedAt !== null && !(input.completedAt instanceof Date)) errors.push('completedAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateBackupUpdate(input: BackupUpdate): string[] {
+        const errors: string[] = [];
+        if (input.subjectId !== undefined && typeof input.subjectId !== 'string') errors.push('subjectId must be a string');
+if (input.subjectKind !== undefined && typeof input.subjectKind !== 'string') errors.push('subjectKind must be a string');
+if (input.status !== undefined && typeof input.status !== 'string') errors.push('status must be a string');
+if (input.startedAt !== undefined && input.startedAt !== null && !(input.startedAt instanceof Date)) errors.push('startedAt must be a Date or null');
+if (input.completedAt !== undefined && input.completedAt !== null && !(input.completedAt instanceof Date)) errors.push('completedAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidBackupCreate(input: BackupCreate): boolean {
+        return validateBackupCreate(input).length === 0;
+      }
+
+      export function isValidBackupUpdate(input: BackupUpdate): boolean {
+        return validateBackupUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownBackupField(field: string): boolean {
+        return [
+          'id',
+  'subjectId',
+  'subjectKind',
+  'status',
+  'metadata',
+  'startedAt',
+  'completedAt',
+        ].includes(field);
+      }

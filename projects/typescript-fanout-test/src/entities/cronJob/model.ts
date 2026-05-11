@@ -1,0 +1,66 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface CronJob {
+        id: string;
+scheduleId: string;
+command: string;
+status: string;
+lastRunAt: Date | null;
+nextRunAt: Date | null;
+      }
+
+      export interface CronJobCreate {
+        scheduleId: string;
+command: string;
+status: string;
+lastRunAt: Date | null;
+nextRunAt: Date | null;
+      }
+
+      export interface CronJobUpdate {
+        scheduleId?: string;
+command?: string;
+status?: string;
+lastRunAt?: Date | null;
+nextRunAt?: Date | null;
+      }
+
+      export const CronJobFields = ['id', 'scheduleId', 'command', 'status', 'lastRunAt', 'nextRunAt'] as const;
+      export type CronJobField = (typeof CronJobFields)[number];
+
+      /** Construct a new CronJob with sensible defaults for optional fields. */
+      export function makeCronJob(input: Partial<CronJob> & { id: string }): CronJob {
+        return {
+          id: input.id,
+          scheduleId: input.scheduleId ?? '',
+          command: input.command ?? '',
+          status: input.status ?? '',
+          lastRunAt: input.lastRunAt ?? null,
+          nextRunAt: input.nextRunAt ?? null,
+        } as CronJob;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateCronJob(current: CronJob, patch: CronJobUpdate): CronJob {
+        const merged: CronJob = { ...current };
+        for (const key of Object.keys(patch) as CronJobField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickCronJobFields(entity: CronJob, fields: CronJobField[]): Partial<CronJob> {
+        const out: Partial<CronJob> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneCronJob(entity: CronJob): CronJob {
+        return JSON.parse(JSON.stringify(entity)) as CronJob;
+      }

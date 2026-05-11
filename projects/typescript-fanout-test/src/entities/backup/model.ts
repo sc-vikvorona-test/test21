@@ -1,0 +1,70 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Backup {
+        id: string;
+subjectId: string;
+subjectKind: string;
+status: string;
+metadata: Record<string, unknown>;
+startedAt: Date | null;
+completedAt: Date | null;
+      }
+
+      export interface BackupCreate {
+        subjectId: string;
+subjectKind: string;
+status: string;
+metadata: Record<string, unknown>;
+startedAt: Date | null;
+completedAt: Date | null;
+      }
+
+      export interface BackupUpdate {
+        subjectId?: string;
+subjectKind?: string;
+status?: string;
+metadata?: Record<string, unknown>;
+startedAt?: Date | null;
+completedAt?: Date | null;
+      }
+
+      export const BackupFields = ['id', 'subjectId', 'subjectKind', 'status', 'metadata', 'startedAt', 'completedAt'] as const;
+      export type BackupField = (typeof BackupFields)[number];
+
+      /** Construct a new Backup with sensible defaults for optional fields. */
+      export function makeBackup(input: Partial<Backup> & { id: string }): Backup {
+        return {
+          id: input.id,
+          subjectId: input.subjectId ?? '',
+          subjectKind: input.subjectKind ?? '',
+          status: input.status ?? '',
+          metadata: input.metadata ?? {},
+          startedAt: input.startedAt ?? null,
+          completedAt: input.completedAt ?? null,
+        } as Backup;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateBackup(current: Backup, patch: BackupUpdate): Backup {
+        const merged: Backup = { ...current };
+        for (const key of Object.keys(patch) as BackupField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickBackupFields(entity: Backup, fields: BackupField[]): Partial<Backup> {
+        const out: Partial<Backup> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneBackup(entity: Backup): Backup {
+        return JSON.parse(JSON.stringify(entity)) as Backup;
+      }

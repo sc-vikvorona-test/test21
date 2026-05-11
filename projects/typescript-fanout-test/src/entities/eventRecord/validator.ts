@@ -1,0 +1,39 @@
+      import type { EventRecordCreate, EventRecordUpdate } from './model';
+
+      export function validateEventRecordCreate(input: EventRecordCreate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.source !== undefined && typeof input.source !== 'string') errors.push('source must be a string');
+if (input.subjectId !== undefined && typeof input.subjectId !== 'string') errors.push('subjectId must be a string');
+if (input.recordedAt !== undefined && input.recordedAt !== null && !(input.recordedAt instanceof Date)) errors.push('recordedAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateEventRecordUpdate(input: EventRecordUpdate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.source !== undefined && typeof input.source !== 'string') errors.push('source must be a string');
+if (input.subjectId !== undefined && typeof input.subjectId !== 'string') errors.push('subjectId must be a string');
+if (input.recordedAt !== undefined && input.recordedAt !== null && !(input.recordedAt instanceof Date)) errors.push('recordedAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidEventRecordCreate(input: EventRecordCreate): boolean {
+        return validateEventRecordCreate(input).length === 0;
+      }
+
+      export function isValidEventRecordUpdate(input: EventRecordUpdate): boolean {
+        return validateEventRecordUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownEventRecordField(field: string): boolean {
+        return [
+          'id',
+  'name',
+  'source',
+  'subjectId',
+  'metadata',
+  'recordedAt',
+        ].includes(field);
+      }

@@ -1,0 +1,27 @@
+import type {{ {klass}Create, {klass}Update }} from './model';
+
+export function validate{klass}Create(input: {klass}Create): string[] {{
+  const errors: string[] = [];
+{FIELD_VALIDATORS}
+  return errors;
+}}
+
+export function validate{klass}Update(input: {klass}Update): string[] {{
+  const errors: string[] = [];
+{FIELD_VALIDATORS}
+  return errors;
+}}
+
+export function isValid{klass}Create(input: {klass}Create): boolean {{
+  return validate{klass}Create(input).length === 0;
+}}
+
+export function isValid{klass}Update(input: {klass}Update): boolean {{
+  return validate{klass}Update(input).length === 0;
+}}
+
+export function isKnown{klass}Field(field: string): boolean {{
+  return [
+{FIELD_NAMES_QUOTED}
+  ].includes(field);
+}}

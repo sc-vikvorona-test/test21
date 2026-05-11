@@ -1,0 +1,44 @@
+      import type { SessionCreate, SessionUpdate } from './model';
+
+      export function validateSessionCreate(input: SessionCreate): string[] {
+        const errors: string[] = [];
+        if (input.userId !== undefined && typeof input.userId !== 'string') errors.push('userId must be a string');
+if (input.token !== undefined && typeof input.token !== 'string') errors.push('token must be a string');
+if (input.userAgent !== undefined && typeof input.userAgent !== 'string') errors.push('userAgent must be a string');
+if (input.ipAddress !== undefined && typeof input.ipAddress !== 'string') errors.push('ipAddress must be a string');
+if (input.expiresAt !== undefined && input.expiresAt !== null && !(input.expiresAt instanceof Date)) errors.push('expiresAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateSessionUpdate(input: SessionUpdate): string[] {
+        const errors: string[] = [];
+        if (input.userId !== undefined && typeof input.userId !== 'string') errors.push('userId must be a string');
+if (input.token !== undefined && typeof input.token !== 'string') errors.push('token must be a string');
+if (input.userAgent !== undefined && typeof input.userAgent !== 'string') errors.push('userAgent must be a string');
+if (input.ipAddress !== undefined && typeof input.ipAddress !== 'string') errors.push('ipAddress must be a string');
+if (input.expiresAt !== undefined && input.expiresAt !== null && !(input.expiresAt instanceof Date)) errors.push('expiresAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidSessionCreate(input: SessionCreate): boolean {
+        return validateSessionCreate(input).length === 0;
+      }
+
+      export function isValidSessionUpdate(input: SessionUpdate): boolean {
+        return validateSessionUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownSessionField(field: string): boolean {
+        return [
+          'id',
+  'userId',
+  'token',
+  'userAgent',
+  'ipAddress',
+  'expiresAt',
+  'createdAt',
+        ].includes(field);
+      }

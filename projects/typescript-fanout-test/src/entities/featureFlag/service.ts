@@ -1,0 +1,119 @@
+import type { FeatureFlag, FeatureFlagCreate, FeatureFlagUpdate } from './model';
+import { FeatureFlagRepository, FeatureFlagNotFoundError } from './repository';
+import { validateFeatureFlagCreate, validateFeatureFlagUpdate } from './validator';
+
+export interface FeatureFlagServiceDeps {
+  repository: FeatureFlagRepository;
+  clock?: () => Date;
+  logger?: (msg: string, meta?: Record<string, unknown>) => void;
+}
+
+export interface ListFeatureFlagOptions {
+  offset?: number;
+  limit?: number;
+  sortBy?: keyof FeatureFlag;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Business-logic layer above FeatureFlagRepository. Performs validation, dispatches
+ * derived events, and surfaces structured errors. Synchronous to keep the fixture
+ * deterministic for tests.
+ */
+export class FeatureFlagService {
+  private readonly repo: FeatureFlagRepository;
+  private readonly clock: () => Date;
+  private readonly logger: (msg: string, meta?: Record<string, unknown>) => void;
+
+  constructor(deps: FeatureFlagServiceDeps) {
+    this.repo = deps.repository;
+    this.clock = deps.clock ?? (() => new Date());
+    this.logger = deps.logger ?? (() => { /* noop */ });
+  }
+
+  create(input: FeatureFlagCreate): FeatureFlag {
+    const errors = validateFeatureFlagCreate(input);
+    if (errors.length > 0) throw new FeatureFlagValidationError(errors);
+    const created = this.repo.insert(input);
+    this.logger('FeatureFlagService.create', { id: created.id });
+    return created;
+  }
+
+  get(id: string): FeatureFlag {
+    try {
+      return this.repo.requireById(id);
+    } catch (err) {
+      if (err instanceof FeatureFlagNotFoundError) throw err;
+      throw new FeatureFlagServiceError(`get failed: ${(err as Error).message}`);
+    }
+  }
+
+  tryGet(id: string): FeatureFlag | undefined {
+    return this.repo.findById(id);
+  }
+
+  update(id: string, patch: FeatureFlagUpdate): FeatureFlag {
+    const errors = validateFeatureFlagUpdate(patch);
+    if (errors.length > 0) throw new FeatureFlagValidationError(errors);
+    const updated = this.repo.update(id, patch);
+    this.logger('FeatureFlagService.update', { id });
+    return updated;
+  }
+
+  delete(id: string): void {
+    const existed = this.repo.delete(id);
+    if (!existed) throw new FeatureFlagNotFoundError(id);
+    this.logger('FeatureFlagService.delete', { id });
+  }
+
+  list(options: ListFeatureFlagOptions = {}): FeatureFlag[] {
+    const offset = options.offset ?? 0;
+    const limit = options.limit ?? 50;
+    if (options.sortBy) {
+      const sorted = this.repo.sortedBy(options.sortBy, options.order);
+      return sorted.slice(offset, offset + limit);
+    }
+    return this.repo.paginate(offset, limit);
+  }
+
+  countAll(): number {
+    return this.repo.count();
+  }
+
+  batchCreate(inputs: FeatureFlagCreate[]): FeatureFlag[] {
+    for (const input of inputs) {
+      const errors = validateFeatureFlagCreate(input);
+      if (errors.length > 0) throw new FeatureFlagValidationError(errors);
+    }
+    return this.repo.batchInsert(inputs);
+  }
+
+  exists(id: string): boolean {
+    return this.repo.findById(id) !== undefined;
+  }
+
+  /** Bulk delete with no failure semantics; safe to call with non-existent ids. */
+  bulkDelete(ids: string[]): number {
+    let deleted = 0;
+    for (const id of ids) if (this.repo.delete(id)) deleted++;
+    return deleted;
+  }
+
+  searchByField<K extends keyof FeatureFlag>(field: K, value: FeatureFlag[K]): FeatureFlag[] {
+    return this.repo.filter((entity) => entity[field] === value);
+  }
+}
+
+export class FeatureFlagServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'FeatureFlagServiceError';
+  }
+}
+
+export class FeatureFlagValidationError extends Error {
+  constructor(public readonly errors: string[]) {
+    super(`FeatureFlag validation failed: ${errors.join('; ')}`);
+    this.name = 'FeatureFlagValidationError';
+  }
+}

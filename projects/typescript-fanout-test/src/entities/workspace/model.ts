@@ -1,0 +1,65 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Workspace {
+        id: string;
+name: string;
+organizationId: string;
+visibility: string;
+memberCount: number;
+createdAt: Date | null;
+      }
+
+      export interface WorkspaceCreate {
+        name: string;
+organizationId: string;
+visibility: string;
+memberCount: number;
+      }
+
+      export interface WorkspaceUpdate {
+        name?: string;
+organizationId?: string;
+visibility?: string;
+memberCount?: number;
+createdAt?: Date | null;
+      }
+
+      export const WorkspaceFields = ['id', 'name', 'organizationId', 'visibility', 'memberCount', 'createdAt'] as const;
+      export type WorkspaceField = (typeof WorkspaceFields)[number];
+
+      /** Construct a new Workspace with sensible defaults for optional fields. */
+      export function makeWorkspace(input: Partial<Workspace> & { id: string }): Workspace {
+        return {
+          id: input.id,
+          name: input.name ?? '',
+          organizationId: input.organizationId ?? '',
+          visibility: input.visibility ?? '',
+          memberCount: input.memberCount ?? 0,
+          createdAt: input.createdAt ?? null,
+        } as Workspace;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateWorkspace(current: Workspace, patch: WorkspaceUpdate): Workspace {
+        const merged: Workspace = { ...current };
+        for (const key of Object.keys(patch) as WorkspaceField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickWorkspaceFields(entity: Workspace, fields: WorkspaceField[]): Partial<Workspace> {
+        const out: Partial<Workspace> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneWorkspace(entity: Workspace): Workspace {
+        return JSON.parse(JSON.stringify(entity)) as Workspace;
+      }

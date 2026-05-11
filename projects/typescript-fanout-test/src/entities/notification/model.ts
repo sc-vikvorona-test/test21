@@ -1,0 +1,65 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Notification {
+        id: string;
+recipientId: string;
+kind: string;
+subjectId: string;
+readAt: Date | null;
+createdAt: Date | null;
+      }
+
+      export interface NotificationCreate {
+        recipientId: string;
+kind: string;
+subjectId: string;
+readAt: Date | null;
+      }
+
+      export interface NotificationUpdate {
+        recipientId?: string;
+kind?: string;
+subjectId?: string;
+readAt?: Date | null;
+createdAt?: Date | null;
+      }
+
+      export const NotificationFields = ['id', 'recipientId', 'kind', 'subjectId', 'readAt', 'createdAt'] as const;
+      export type NotificationField = (typeof NotificationFields)[number];
+
+      /** Construct a new Notification with sensible defaults for optional fields. */
+      export function makeNotification(input: Partial<Notification> & { id: string }): Notification {
+        return {
+          id: input.id,
+          recipientId: input.recipientId ?? '',
+          kind: input.kind ?? '',
+          subjectId: input.subjectId ?? '',
+          readAt: input.readAt ?? null,
+          createdAt: input.createdAt ?? null,
+        } as Notification;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateNotification(current: Notification, patch: NotificationUpdate): Notification {
+        const merged: Notification = { ...current };
+        for (const key of Object.keys(patch) as NotificationField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickNotificationFields(entity: Notification, fields: NotificationField[]): Partial<Notification> {
+        const out: Partial<Notification> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneNotification(entity: Notification): Notification {
+        return JSON.parse(JSON.stringify(entity)) as Notification;
+      }

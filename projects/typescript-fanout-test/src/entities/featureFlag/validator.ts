@@ -1,0 +1,43 @@
+      import type { FeatureFlagCreate, FeatureFlagUpdate } from './model';
+
+      export function validateFeatureFlagCreate(input: FeatureFlagCreate): string[] {
+        const errors: string[] = [];
+        if (input.key !== undefined && typeof input.key !== 'string') errors.push('key must be a string');
+if (input.description !== undefined && typeof input.description !== 'string') errors.push('description must be a string');
+if (input.rolloutPercent !== undefined && typeof input.rolloutPercent !== 'number') errors.push('rolloutPercent must be a number');
+if (input.rolloutPercent !== undefined && (input.rolloutPercent as number) < 0) errors.push('rolloutPercent must be non-negative');
+if (input.enabled !== undefined && typeof input.enabled !== 'boolean') errors.push('enabled must be a boolean');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateFeatureFlagUpdate(input: FeatureFlagUpdate): string[] {
+        const errors: string[] = [];
+        if (input.key !== undefined && typeof input.key !== 'string') errors.push('key must be a string');
+if (input.description !== undefined && typeof input.description !== 'string') errors.push('description must be a string');
+if (input.rolloutPercent !== undefined && typeof input.rolloutPercent !== 'number') errors.push('rolloutPercent must be a number');
+if (input.rolloutPercent !== undefined && (input.rolloutPercent as number) < 0) errors.push('rolloutPercent must be non-negative');
+if (input.enabled !== undefined && typeof input.enabled !== 'boolean') errors.push('enabled must be a boolean');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidFeatureFlagCreate(input: FeatureFlagCreate): boolean {
+        return validateFeatureFlagCreate(input).length === 0;
+      }
+
+      export function isValidFeatureFlagUpdate(input: FeatureFlagUpdate): boolean {
+        return validateFeatureFlagUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownFeatureFlagField(field: string): boolean {
+        return [
+          'id',
+  'key',
+  'description',
+  'rolloutPercent',
+  'enabled',
+  'createdAt',
+        ].includes(field);
+      }

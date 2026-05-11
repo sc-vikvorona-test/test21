@@ -1,0 +1,46 @@
+export interface {klass} {{
+{FIELD_LINES}
+}}
+
+export interface {klass}Create {{
+{FIELD_LINES_REQUIRED_NO_ID_NO_CREATED}
+}}
+
+export interface {klass}Update {{
+{FIELD_LINES_OPTIONAL_NO_ID}
+}}
+
+export const {klass}Fields = [{FIELD_CONSTANTS}] as const;
+export type {klass}Field = (typeof {klass}Fields)[number];
+
+/** Construct a new {klass} with sensible defaults for optional fields. */
+export function make{klass}(input: Partial<{klass}> & {{ id: string }}): {klass} {{
+  return {{
+    id: input.id,
+{DEFAULTS}
+  }} as {klass};
+}}
+
+/** Shallow merge for partial updates. Reject identifier mutation. */
+export function update{klass}(current: {klass}, patch: {klass}Update): {klass} {{
+  const merged: {klass} = {{ ...current }};
+  for (const key of Object.keys(patch) as {klass}Field[]) {{
+    if (key === 'id') continue;
+    const value = (patch as Record<string, unknown>)[key];
+    if (value === undefined) continue;
+    (merged as Record<string, unknown>)[key] = value;
+  }}
+  return merged;
+}}
+
+export function pick{klass}Fields(entity: {klass}, fields: {klass}Field[]): Partial<{klass}> {{
+  const out: Partial<{klass}> = {{}};
+  for (const f of fields) {{
+    (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+  }}
+  return out;
+}}
+
+export function clone{klass}(entity: {klass}): {klass} {{
+  return JSON.parse(JSON.stringify(entity)) as {klass};
+}}

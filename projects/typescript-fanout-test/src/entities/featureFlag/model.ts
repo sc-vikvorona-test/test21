@@ -1,0 +1,65 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface FeatureFlag {
+        id: string;
+key: string;
+description: string;
+rolloutPercent: number;
+enabled: boolean;
+createdAt: Date | null;
+      }
+
+      export interface FeatureFlagCreate {
+        key: string;
+description: string;
+rolloutPercent: number;
+enabled: boolean;
+      }
+
+      export interface FeatureFlagUpdate {
+        key?: string;
+description?: string;
+rolloutPercent?: number;
+enabled?: boolean;
+createdAt?: Date | null;
+      }
+
+      export const FeatureFlagFields = ['id', 'key', 'description', 'rolloutPercent', 'enabled', 'createdAt'] as const;
+      export type FeatureFlagField = (typeof FeatureFlagFields)[number];
+
+      /** Construct a new FeatureFlag with sensible defaults for optional fields. */
+      export function makeFeatureFlag(input: Partial<FeatureFlag> & { id: string }): FeatureFlag {
+        return {
+          id: input.id,
+          key: input.key ?? '',
+          description: input.description ?? '',
+          rolloutPercent: input.rolloutPercent ?? 0,
+          enabled: input.enabled ?? false,
+          createdAt: input.createdAt ?? null,
+        } as FeatureFlag;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateFeatureFlag(current: FeatureFlag, patch: FeatureFlagUpdate): FeatureFlag {
+        const merged: FeatureFlag = { ...current };
+        for (const key of Object.keys(patch) as FeatureFlagField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickFeatureFlagFields(entity: FeatureFlag, fields: FeatureFlagField[]): Partial<FeatureFlag> {
+        const out: Partial<FeatureFlag> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneFeatureFlag(entity: FeatureFlag): FeatureFlag {
+        return JSON.parse(JSON.stringify(entity)) as FeatureFlag;
+      }

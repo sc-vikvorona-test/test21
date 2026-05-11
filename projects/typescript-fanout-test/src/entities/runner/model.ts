@@ -1,0 +1,69 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Runner {
+        id: string;
+name: string;
+kind: string;
+ownerId: string;
+active: boolean;
+lastSeenAt: Date | null;
+createdAt: Date | null;
+      }
+
+      export interface RunnerCreate {
+        name: string;
+kind: string;
+ownerId: string;
+active: boolean;
+lastSeenAt: Date | null;
+      }
+
+      export interface RunnerUpdate {
+        name?: string;
+kind?: string;
+ownerId?: string;
+active?: boolean;
+lastSeenAt?: Date | null;
+createdAt?: Date | null;
+      }
+
+      export const RunnerFields = ['id', 'name', 'kind', 'ownerId', 'active', 'lastSeenAt', 'createdAt'] as const;
+      export type RunnerField = (typeof RunnerFields)[number];
+
+      /** Construct a new Runner with sensible defaults for optional fields. */
+      export function makeRunner(input: Partial<Runner> & { id: string }): Runner {
+        return {
+          id: input.id,
+          name: input.name ?? '',
+          kind: input.kind ?? '',
+          ownerId: input.ownerId ?? '',
+          active: input.active ?? false,
+          lastSeenAt: input.lastSeenAt ?? null,
+          createdAt: input.createdAt ?? null,
+        } as Runner;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateRunner(current: Runner, patch: RunnerUpdate): Runner {
+        const merged: Runner = { ...current };
+        for (const key of Object.keys(patch) as RunnerField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickRunnerFields(entity: Runner, fields: RunnerField[]): Partial<Runner> {
+        const out: Partial<Runner> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneRunner(entity: Runner): Runner {
+        return JSON.parse(JSON.stringify(entity)) as Runner;
+      }

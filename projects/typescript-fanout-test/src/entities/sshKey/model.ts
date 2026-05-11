@@ -1,0 +1,69 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface SshKey {
+        id: string;
+name: string;
+ownerId: string;
+fingerprint: string;
+lastUsedAt: Date | null;
+expiresAt: Date | null;
+createdAt: Date | null;
+      }
+
+      export interface SshKeyCreate {
+        name: string;
+ownerId: string;
+fingerprint: string;
+lastUsedAt: Date | null;
+expiresAt: Date | null;
+      }
+
+      export interface SshKeyUpdate {
+        name?: string;
+ownerId?: string;
+fingerprint?: string;
+lastUsedAt?: Date | null;
+expiresAt?: Date | null;
+createdAt?: Date | null;
+      }
+
+      export const SshKeyFields = ['id', 'name', 'ownerId', 'fingerprint', 'lastUsedAt', 'expiresAt', 'createdAt'] as const;
+      export type SshKeyField = (typeof SshKeyFields)[number];
+
+      /** Construct a new SshKey with sensible defaults for optional fields. */
+      export function makeSshKey(input: Partial<SshKey> & { id: string }): SshKey {
+        return {
+          id: input.id,
+          name: input.name ?? '',
+          ownerId: input.ownerId ?? '',
+          fingerprint: input.fingerprint ?? '',
+          lastUsedAt: input.lastUsedAt ?? null,
+          expiresAt: input.expiresAt ?? null,
+          createdAt: input.createdAt ?? null,
+        } as SshKey;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateSshKey(current: SshKey, patch: SshKeyUpdate): SshKey {
+        const merged: SshKey = { ...current };
+        for (const key of Object.keys(patch) as SshKeyField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickSshKeyFields(entity: SshKey, fields: SshKeyField[]): Partial<SshKey> {
+        const out: Partial<SshKey> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneSshKey(entity: SshKey): SshKey {
+        return JSON.parse(JSON.stringify(entity)) as SshKey;
+      }

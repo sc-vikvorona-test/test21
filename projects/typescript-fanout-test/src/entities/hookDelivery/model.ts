@@ -1,0 +1,62 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface HookDelivery {
+        id: string;
+webhookId: string;
+status: string;
+amountCents: number;
+deliveredAt: Date | null;
+      }
+
+      export interface HookDeliveryCreate {
+        webhookId: string;
+status: string;
+amountCents: number;
+deliveredAt: Date | null;
+      }
+
+      export interface HookDeliveryUpdate {
+        webhookId?: string;
+status?: string;
+amountCents?: number;
+deliveredAt?: Date | null;
+      }
+
+      export const HookDeliveryFields = ['id', 'webhookId', 'status', 'amountCents', 'deliveredAt'] as const;
+      export type HookDeliveryField = (typeof HookDeliveryFields)[number];
+
+      /** Construct a new HookDelivery with sensible defaults for optional fields. */
+      export function makeHookDelivery(input: Partial<HookDelivery> & { id: string }): HookDelivery {
+        return {
+          id: input.id,
+          webhookId: input.webhookId ?? '',
+          status: input.status ?? '',
+          amountCents: input.amountCents ?? 0,
+          deliveredAt: input.deliveredAt ?? null,
+        } as HookDelivery;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateHookDelivery(current: HookDelivery, patch: HookDeliveryUpdate): HookDelivery {
+        const merged: HookDelivery = { ...current };
+        for (const key of Object.keys(patch) as HookDeliveryField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickHookDeliveryFields(entity: HookDelivery, fields: HookDeliveryField[]): Partial<HookDelivery> {
+        const out: Partial<HookDelivery> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneHookDelivery(entity: HookDelivery): HookDelivery {
+        return JSON.parse(JSON.stringify(entity)) as HookDelivery;
+      }

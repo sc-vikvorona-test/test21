@@ -1,0 +1,41 @@
+      import type { TagCreate, TagUpdate } from './model';
+
+      export function validateTagCreate(input: TagCreate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.repositoryId !== undefined && typeof input.repositoryId !== 'string') errors.push('repositoryId must be a string');
+if (input.commitSha !== undefined && typeof input.commitSha !== 'string') errors.push('commitSha must be a string');
+if (input.message !== undefined && typeof input.message !== 'string') errors.push('message must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateTagUpdate(input: TagUpdate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.repositoryId !== undefined && typeof input.repositoryId !== 'string') errors.push('repositoryId must be a string');
+if (input.commitSha !== undefined && typeof input.commitSha !== 'string') errors.push('commitSha must be a string');
+if (input.message !== undefined && typeof input.message !== 'string') errors.push('message must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidTagCreate(input: TagCreate): boolean {
+        return validateTagCreate(input).length === 0;
+      }
+
+      export function isValidTagUpdate(input: TagUpdate): boolean {
+        return validateTagUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownTagField(field: string): boolean {
+        return [
+          'id',
+  'name',
+  'repositoryId',
+  'commitSha',
+  'message',
+  'createdAt',
+        ].includes(field);
+      }

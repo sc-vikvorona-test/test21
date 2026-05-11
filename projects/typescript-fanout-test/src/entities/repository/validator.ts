@@ -1,0 +1,44 @@
+      import type { RepositoryCreate, RepositoryUpdate } from './model';
+
+      export function validateRepositoryCreate(input: RepositoryCreate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.projectId !== undefined && typeof input.projectId !== 'string') errors.push('projectId must be a string');
+if (input.url !== undefined && typeof input.url !== 'string') errors.push('url must be a string');
+if (input.defaultBranch !== undefined && typeof input.defaultBranch !== 'string') errors.push('defaultBranch must be a string');
+if (input.isPrivate !== undefined && typeof input.isPrivate !== 'boolean') errors.push('isPrivate must be a boolean');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateRepositoryUpdate(input: RepositoryUpdate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.projectId !== undefined && typeof input.projectId !== 'string') errors.push('projectId must be a string');
+if (input.url !== undefined && typeof input.url !== 'string') errors.push('url must be a string');
+if (input.defaultBranch !== undefined && typeof input.defaultBranch !== 'string') errors.push('defaultBranch must be a string');
+if (input.isPrivate !== undefined && typeof input.isPrivate !== 'boolean') errors.push('isPrivate must be a boolean');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidRepositoryCreate(input: RepositoryCreate): boolean {
+        return validateRepositoryCreate(input).length === 0;
+      }
+
+      export function isValidRepositoryUpdate(input: RepositoryUpdate): boolean {
+        return validateRepositoryUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownRepositoryField(field: string): boolean {
+        return [
+          'id',
+  'name',
+  'projectId',
+  'url',
+  'defaultBranch',
+  'isPrivate',
+  'createdAt',
+        ].includes(field);
+      }

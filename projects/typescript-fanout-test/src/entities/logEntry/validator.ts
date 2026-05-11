@@ -1,0 +1,39 @@
+      import type { LogEntryCreate, LogEntryUpdate } from './model';
+
+      export function validateLogEntryCreate(input: LogEntryCreate): string[] {
+        const errors: string[] = [];
+        if (input.level !== undefined && typeof input.level !== 'string') errors.push('level must be a string');
+if (input.message !== undefined && typeof input.message !== 'string') errors.push('message must be a string');
+if (input.source !== undefined && typeof input.source !== 'string') errors.push('source must be a string');
+if (input.recordedAt !== undefined && input.recordedAt !== null && !(input.recordedAt instanceof Date)) errors.push('recordedAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateLogEntryUpdate(input: LogEntryUpdate): string[] {
+        const errors: string[] = [];
+        if (input.level !== undefined && typeof input.level !== 'string') errors.push('level must be a string');
+if (input.message !== undefined && typeof input.message !== 'string') errors.push('message must be a string');
+if (input.source !== undefined && typeof input.source !== 'string') errors.push('source must be a string');
+if (input.recordedAt !== undefined && input.recordedAt !== null && !(input.recordedAt instanceof Date)) errors.push('recordedAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidLogEntryCreate(input: LogEntryCreate): boolean {
+        return validateLogEntryCreate(input).length === 0;
+      }
+
+      export function isValidLogEntryUpdate(input: LogEntryUpdate): boolean {
+        return validateLogEntryUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownLogEntryField(field: string): boolean {
+        return [
+          'id',
+  'level',
+  'message',
+  'source',
+  'metadata',
+  'recordedAt',
+        ].includes(field);
+      }

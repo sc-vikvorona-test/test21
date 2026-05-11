@@ -1,0 +1,122 @@
+import type { Team, TeamCreate, TeamUpdate } from './model';
+import { makeTeam, updateTeam } from './model';
+
+/**
+ * In-memory store. Methods are synchronous on purpose — this is a fixture, not a database.
+ * Realistic data shapes; not derived from any external project.
+ */
+export class TeamRepository {
+  private readonly byId = new Map<string, Team>();
+  private nextId = 1;
+
+  all(): Team[] {
+    return Array.from(this.byId.values());
+  }
+
+  count(): number {
+    return this.byId.size;
+  }
+
+  findById(id: string): Team | undefined {
+    return this.byId.get(id);
+  }
+
+  requireById(id: string): Team {
+    const found = this.byId.get(id);
+    if (!found) throw new TeamNotFoundError(id);
+    return found;
+  }
+
+  findFirst(predicate: (entity: Team) => boolean): Team | undefined {
+    for (const entity of this.byId.values()) {
+      if (predicate(entity)) return entity;
+    }
+    return undefined;
+  }
+
+  filter(predicate: (entity: Team) => boolean): Team[] {
+    const out: Team[] = [];
+    for (const entity of this.byId.values()) {
+      if (predicate(entity)) out.push(entity);
+    }
+    return out;
+  }
+
+  paginate(offset: number, limit: number): Team[] {
+    const out: Team[] = [];
+    let i = 0;
+    for (const entity of this.byId.values()) {
+      if (i >= offset && i < offset + limit) out.push(entity);
+      i++;
+      if (i >= offset + limit) break;
+    }
+    return out;
+  }
+
+  insert(create: TeamCreate): Team {
+    const id = `${this.nextId++}`;
+    const entity = makeTeam({ ...create, id } as Partial<Team> & { id: string });
+    this.byId.set(id, entity);
+    return entity;
+  }
+
+  update(id: string, patch: TeamUpdate): Team {
+    const current = this.requireById(id);
+    const next = updateTeam(current, patch);
+    this.byId.set(id, next);
+    return next;
+  }
+
+  upsert(create: TeamCreate, predicate: (existing: Team) => boolean): Team {
+    const existing = this.findFirst(predicate);
+    if (existing) return existing;
+    return this.insert(create);
+  }
+
+  delete(id: string): boolean {
+    return this.byId.delete(id);
+  }
+
+  clear(): void {
+    this.byId.clear();
+    this.nextId = 1;
+  }
+
+  sortedBy<K extends keyof Team>(key: K, order: 'asc' | 'desc' = 'asc'): Team[] {
+    const items = this.all();
+    const dir = order === 'asc' ? 1 : -1;
+    items.sort((a, b) => {
+      const av = a[key] as unknown;
+      const bv = b[key] as unknown;
+      if (av === bv) return 0;
+      if (av === null || av === undefined) return -dir;
+      if (bv === null || bv === undefined) return dir;
+      return (av as number) < (bv as number) ? -dir : dir;
+    });
+    return items;
+  }
+
+  batchInsert(items: TeamCreate[]): Team[] {
+    return items.map((item) => this.insert(item));
+  }
+
+  batchUpdate(updates: Array<{ id: string; patch: TeamUpdate }>): Team[] {
+    const out: Team[] = [];
+    for (const u of updates) {
+      try { out.push(this.update(u.id, u.patch)); } catch { /* swallow missing */ }
+    }
+    return out;
+  }
+
+  replaceAll(items: Team[]): void {
+    this.byId.clear();
+    for (const item of items) this.byId.set(item.id, item);
+  }
+}
+
+export class TeamNotFoundError extends Error {
+  constructor(public readonly id: string) {
+    super(`Team not found: ${id}`);
+    this.name = 'TeamNotFoundError';
+  }
+}

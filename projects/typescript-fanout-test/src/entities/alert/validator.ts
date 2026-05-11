@@ -1,0 +1,44 @@
+      import type { AlertCreate, AlertUpdate } from './model';
+
+      export function validateAlertCreate(input: AlertCreate): string[] {
+        const errors: string[] = [];
+        if (input.ruleId !== undefined && typeof input.ruleId !== 'string') errors.push('ruleId must be a string');
+if (input.subjectId !== undefined && typeof input.subjectId !== 'string') errors.push('subjectId must be a string');
+if (input.severity !== undefined && typeof input.severity !== 'string') errors.push('severity must be a string');
+if (input.status !== undefined && typeof input.status !== 'string') errors.push('status must be a string');
+if (input.firedAt !== undefined && input.firedAt !== null && !(input.firedAt instanceof Date)) errors.push('firedAt must be a Date or null');
+if (input.resolvedAt !== undefined && input.resolvedAt !== null && !(input.resolvedAt instanceof Date)) errors.push('resolvedAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateAlertUpdate(input: AlertUpdate): string[] {
+        const errors: string[] = [];
+        if (input.ruleId !== undefined && typeof input.ruleId !== 'string') errors.push('ruleId must be a string');
+if (input.subjectId !== undefined && typeof input.subjectId !== 'string') errors.push('subjectId must be a string');
+if (input.severity !== undefined && typeof input.severity !== 'string') errors.push('severity must be a string');
+if (input.status !== undefined && typeof input.status !== 'string') errors.push('status must be a string');
+if (input.firedAt !== undefined && input.firedAt !== null && !(input.firedAt instanceof Date)) errors.push('firedAt must be a Date or null');
+if (input.resolvedAt !== undefined && input.resolvedAt !== null && !(input.resolvedAt instanceof Date)) errors.push('resolvedAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidAlertCreate(input: AlertCreate): boolean {
+        return validateAlertCreate(input).length === 0;
+      }
+
+      export function isValidAlertUpdate(input: AlertUpdate): boolean {
+        return validateAlertUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownAlertField(field: string): boolean {
+        return [
+          'id',
+  'ruleId',
+  'subjectId',
+  'severity',
+  'status',
+  'firedAt',
+  'resolvedAt',
+        ].includes(field);
+      }

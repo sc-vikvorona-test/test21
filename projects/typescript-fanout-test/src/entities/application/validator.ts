@@ -1,0 +1,44 @@
+      import type { ApplicationCreate, ApplicationUpdate } from './model';
+
+      export function validateApplicationCreate(input: ApplicationCreate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.ownerId !== undefined && typeof input.ownerId !== 'string') errors.push('ownerId must be a string');
+if (input.clientId !== undefined && typeof input.clientId !== 'string') errors.push('clientId must be a string');
+if (input.scopes !== undefined && (!Array.isArray(input.scopes) || (input.scopes as string[]).some((x) => typeof x !== 'string'))) errors.push('scopes must be string[]');
+if (input.active !== undefined && typeof input.active !== 'boolean') errors.push('active must be a boolean');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateApplicationUpdate(input: ApplicationUpdate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.ownerId !== undefined && typeof input.ownerId !== 'string') errors.push('ownerId must be a string');
+if (input.clientId !== undefined && typeof input.clientId !== 'string') errors.push('clientId must be a string');
+if (input.scopes !== undefined && (!Array.isArray(input.scopes) || (input.scopes as string[]).some((x) => typeof x !== 'string'))) errors.push('scopes must be string[]');
+if (input.active !== undefined && typeof input.active !== 'boolean') errors.push('active must be a boolean');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidApplicationCreate(input: ApplicationCreate): boolean {
+        return validateApplicationCreate(input).length === 0;
+      }
+
+      export function isValidApplicationUpdate(input: ApplicationUpdate): boolean {
+        return validateApplicationUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownApplicationField(field: string): boolean {
+        return [
+          'id',
+  'name',
+  'ownerId',
+  'clientId',
+  'scopes',
+  'active',
+  'createdAt',
+        ].includes(field);
+      }

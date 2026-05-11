@@ -1,0 +1,119 @@
+import type { Branch, BranchCreate, BranchUpdate } from './model';
+import { BranchRepository, BranchNotFoundError } from './repository';
+import { validateBranchCreate, validateBranchUpdate } from './validator';
+
+export interface BranchServiceDeps {
+  repository: BranchRepository;
+  clock?: () => Date;
+  logger?: (msg: string, meta?: Record<string, unknown>) => void;
+}
+
+export interface ListBranchOptions {
+  offset?: number;
+  limit?: number;
+  sortBy?: keyof Branch;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Business-logic layer above BranchRepository. Performs validation, dispatches
+ * derived events, and surfaces structured errors. Synchronous to keep the fixture
+ * deterministic for tests.
+ */
+export class BranchService {
+  private readonly repo: BranchRepository;
+  private readonly clock: () => Date;
+  private readonly logger: (msg: string, meta?: Record<string, unknown>) => void;
+
+  constructor(deps: BranchServiceDeps) {
+    this.repo = deps.repository;
+    this.clock = deps.clock ?? (() => new Date());
+    this.logger = deps.logger ?? (() => { /* noop */ });
+  }
+
+  create(input: BranchCreate): Branch {
+    const errors = validateBranchCreate(input);
+    if (errors.length > 0) throw new BranchValidationError(errors);
+    const created = this.repo.insert(input);
+    this.logger('BranchService.create', { id: created.id });
+    return created;
+  }
+
+  get(id: string): Branch {
+    try {
+      return this.repo.requireById(id);
+    } catch (err) {
+      if (err instanceof BranchNotFoundError) throw err;
+      throw new BranchServiceError(`get failed: ${(err as Error).message}`);
+    }
+  }
+
+  tryGet(id: string): Branch | undefined {
+    return this.repo.findById(id);
+  }
+
+  update(id: string, patch: BranchUpdate): Branch {
+    const errors = validateBranchUpdate(patch);
+    if (errors.length > 0) throw new BranchValidationError(errors);
+    const updated = this.repo.update(id, patch);
+    this.logger('BranchService.update', { id });
+    return updated;
+  }
+
+  delete(id: string): void {
+    const existed = this.repo.delete(id);
+    if (!existed) throw new BranchNotFoundError(id);
+    this.logger('BranchService.delete', { id });
+  }
+
+  list(options: ListBranchOptions = {}): Branch[] {
+    const offset = options.offset ?? 0;
+    const limit = options.limit ?? 50;
+    if (options.sortBy) {
+      const sorted = this.repo.sortedBy(options.sortBy, options.order);
+      return sorted.slice(offset, offset + limit);
+    }
+    return this.repo.paginate(offset, limit);
+  }
+
+  countAll(): number {
+    return this.repo.count();
+  }
+
+  batchCreate(inputs: BranchCreate[]): Branch[] {
+    for (const input of inputs) {
+      const errors = validateBranchCreate(input);
+      if (errors.length > 0) throw new BranchValidationError(errors);
+    }
+    return this.repo.batchInsert(inputs);
+  }
+
+  exists(id: string): boolean {
+    return this.repo.findById(id) !== undefined;
+  }
+
+  /** Bulk delete with no failure semantics; safe to call with non-existent ids. */
+  bulkDelete(ids: string[]): number {
+    let deleted = 0;
+    for (const id of ids) if (this.repo.delete(id)) deleted++;
+    return deleted;
+  }
+
+  searchByField<K extends keyof Branch>(field: K, value: Branch[K]): Branch[] {
+    return this.repo.filter((entity) => entity[field] === value);
+  }
+}
+
+export class BranchServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BranchServiceError';
+  }
+}
+
+export class BranchValidationError extends Error {
+  constructor(public readonly errors: string[]) {
+    super(`Branch validation failed: ${errors.join('; ')}`);
+    this.name = 'BranchValidationError';
+  }
+}

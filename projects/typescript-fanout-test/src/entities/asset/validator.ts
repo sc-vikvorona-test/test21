@@ -1,0 +1,46 @@
+      import type { AssetCreate, AssetUpdate } from './model';
+
+      export function validateAssetCreate(input: AssetCreate): string[] {
+        const errors: string[] = [];
+        if (input.releaseId !== undefined && typeof input.releaseId !== 'string') errors.push('releaseId must be a string');
+if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.contentType !== undefined && typeof input.contentType !== 'string') errors.push('contentType must be a string');
+if (input.amountCents !== undefined && typeof input.amountCents !== 'number') errors.push('amountCents must be a number');
+if (input.amountCents !== undefined && (input.amountCents as number) < 0) errors.push('amountCents must be non-negative');
+if (input.downloadCount !== undefined && typeof input.downloadCount !== 'string') errors.push('downloadCount must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateAssetUpdate(input: AssetUpdate): string[] {
+        const errors: string[] = [];
+        if (input.releaseId !== undefined && typeof input.releaseId !== 'string') errors.push('releaseId must be a string');
+if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.contentType !== undefined && typeof input.contentType !== 'string') errors.push('contentType must be a string');
+if (input.amountCents !== undefined && typeof input.amountCents !== 'number') errors.push('amountCents must be a number');
+if (input.amountCents !== undefined && (input.amountCents as number) < 0) errors.push('amountCents must be non-negative');
+if (input.downloadCount !== undefined && typeof input.downloadCount !== 'string') errors.push('downloadCount must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidAssetCreate(input: AssetCreate): boolean {
+        return validateAssetCreate(input).length === 0;
+      }
+
+      export function isValidAssetUpdate(input: AssetUpdate): boolean {
+        return validateAssetUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownAssetField(field: string): boolean {
+        return [
+          'id',
+  'releaseId',
+  'name',
+  'contentType',
+  'amountCents',
+  'downloadCount',
+  'createdAt',
+        ].includes(field);
+      }

@@ -1,0 +1,38 @@
+      import type { MembershipCreate, MembershipUpdate } from './model';
+
+      export function validateMembershipCreate(input: MembershipCreate): string[] {
+        const errors: string[] = [];
+        if (input.userId !== undefined && typeof input.userId !== 'string') errors.push('userId must be a string');
+if (input.teamId !== undefined && typeof input.teamId !== 'string') errors.push('teamId must be a string');
+if (input.role !== undefined && typeof input.role !== 'string') errors.push('role must be a string');
+if (input.joinedAt !== undefined && input.joinedAt !== null && !(input.joinedAt instanceof Date)) errors.push('joinedAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateMembershipUpdate(input: MembershipUpdate): string[] {
+        const errors: string[] = [];
+        if (input.userId !== undefined && typeof input.userId !== 'string') errors.push('userId must be a string');
+if (input.teamId !== undefined && typeof input.teamId !== 'string') errors.push('teamId must be a string');
+if (input.role !== undefined && typeof input.role !== 'string') errors.push('role must be a string');
+if (input.joinedAt !== undefined && input.joinedAt !== null && !(input.joinedAt instanceof Date)) errors.push('joinedAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidMembershipCreate(input: MembershipCreate): boolean {
+        return validateMembershipCreate(input).length === 0;
+      }
+
+      export function isValidMembershipUpdate(input: MembershipUpdate): boolean {
+        return validateMembershipUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownMembershipField(field: string): boolean {
+        return [
+          'id',
+  'userId',
+  'teamId',
+  'role',
+  'joinedAt',
+        ].includes(field);
+      }

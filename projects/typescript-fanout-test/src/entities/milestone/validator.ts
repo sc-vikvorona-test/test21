@@ -1,0 +1,44 @@
+      import type { MilestoneCreate, MilestoneUpdate } from './model';
+
+      export function validateMilestoneCreate(input: MilestoneCreate): string[] {
+        const errors: string[] = [];
+        if (input.title !== undefined && typeof input.title !== 'string') errors.push('title must be a string');
+if (input.repositoryId !== undefined && typeof input.repositoryId !== 'string') errors.push('repositoryId must be a string');
+if (input.dueAt !== undefined && input.dueAt !== null && !(input.dueAt instanceof Date)) errors.push('dueAt must be a Date or null');
+if (input.state !== undefined && typeof input.state !== 'string') errors.push('state must be a string');
+if (input.description !== undefined && typeof input.description !== 'string') errors.push('description must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateMilestoneUpdate(input: MilestoneUpdate): string[] {
+        const errors: string[] = [];
+        if (input.title !== undefined && typeof input.title !== 'string') errors.push('title must be a string');
+if (input.repositoryId !== undefined && typeof input.repositoryId !== 'string') errors.push('repositoryId must be a string');
+if (input.dueAt !== undefined && input.dueAt !== null && !(input.dueAt instanceof Date)) errors.push('dueAt must be a Date or null');
+if (input.state !== undefined && typeof input.state !== 'string') errors.push('state must be a string');
+if (input.description !== undefined && typeof input.description !== 'string') errors.push('description must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidMilestoneCreate(input: MilestoneCreate): boolean {
+        return validateMilestoneCreate(input).length === 0;
+      }
+
+      export function isValidMilestoneUpdate(input: MilestoneUpdate): boolean {
+        return validateMilestoneUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownMilestoneField(field: string): boolean {
+        return [
+          'id',
+  'title',
+  'repositoryId',
+  'dueAt',
+  'state',
+  'description',
+  'createdAt',
+        ].includes(field);
+      }

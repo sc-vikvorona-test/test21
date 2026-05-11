@@ -1,0 +1,65 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface GpgKey {
+        id: string;
+ownerId: string;
+fingerprint: string;
+publicKey: string;
+expiresAt: Date | null;
+createdAt: Date | null;
+      }
+
+      export interface GpgKeyCreate {
+        ownerId: string;
+fingerprint: string;
+publicKey: string;
+expiresAt: Date | null;
+      }
+
+      export interface GpgKeyUpdate {
+        ownerId?: string;
+fingerprint?: string;
+publicKey?: string;
+expiresAt?: Date | null;
+createdAt?: Date | null;
+      }
+
+      export const GpgKeyFields = ['id', 'ownerId', 'fingerprint', 'publicKey', 'expiresAt', 'createdAt'] as const;
+      export type GpgKeyField = (typeof GpgKeyFields)[number];
+
+      /** Construct a new GpgKey with sensible defaults for optional fields. */
+      export function makeGpgKey(input: Partial<GpgKey> & { id: string }): GpgKey {
+        return {
+          id: input.id,
+          ownerId: input.ownerId ?? '',
+          fingerprint: input.fingerprint ?? '',
+          publicKey: input.publicKey ?? '',
+          expiresAt: input.expiresAt ?? null,
+          createdAt: input.createdAt ?? null,
+        } as GpgKey;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateGpgKey(current: GpgKey, patch: GpgKeyUpdate): GpgKey {
+        const merged: GpgKey = { ...current };
+        for (const key of Object.keys(patch) as GpgKeyField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickGpgKeyFields(entity: GpgKey, fields: GpgKeyField[]): Partial<GpgKey> {
+        const out: Partial<GpgKey> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneGpgKey(entity: GpgKey): GpgKey {
+        return JSON.parse(JSON.stringify(entity)) as GpgKey;
+      }

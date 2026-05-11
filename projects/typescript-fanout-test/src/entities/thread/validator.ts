@@ -1,0 +1,40 @@
+      import type { ThreadCreate, ThreadUpdate } from './model';
+
+      export function validateThreadCreate(input: ThreadCreate): string[] {
+        const errors: string[] = [];
+        if (input.channelId !== undefined && typeof input.channelId !== 'string') errors.push('channelId must be a string');
+if (input.parentMessageId !== undefined && typeof input.parentMessageId !== 'string') errors.push('parentMessageId must be a string');
+if (input.memberCount !== undefined && typeof input.memberCount !== 'number') errors.push('memberCount must be a number');
+if (input.memberCount !== undefined && (input.memberCount as number) < 0) errors.push('memberCount must be non-negative');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateThreadUpdate(input: ThreadUpdate): string[] {
+        const errors: string[] = [];
+        if (input.channelId !== undefined && typeof input.channelId !== 'string') errors.push('channelId must be a string');
+if (input.parentMessageId !== undefined && typeof input.parentMessageId !== 'string') errors.push('parentMessageId must be a string');
+if (input.memberCount !== undefined && typeof input.memberCount !== 'number') errors.push('memberCount must be a number');
+if (input.memberCount !== undefined && (input.memberCount as number) < 0) errors.push('memberCount must be non-negative');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidThreadCreate(input: ThreadCreate): boolean {
+        return validateThreadCreate(input).length === 0;
+      }
+
+      export function isValidThreadUpdate(input: ThreadUpdate): boolean {
+        return validateThreadUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownThreadField(field: string): boolean {
+        return [
+          'id',
+  'channelId',
+  'parentMessageId',
+  'memberCount',
+  'createdAt',
+        ].includes(field);
+      }

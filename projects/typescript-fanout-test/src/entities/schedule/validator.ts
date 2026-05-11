@@ -1,0 +1,44 @@
+      import type { ScheduleCreate, ScheduleUpdate } from './model';
+
+      export function validateScheduleCreate(input: ScheduleCreate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.cron !== undefined && typeof input.cron !== 'string') errors.push('cron must be a string');
+if (input.ownerId !== undefined && typeof input.ownerId !== 'string') errors.push('ownerId must be a string');
+if (input.active !== undefined && typeof input.active !== 'boolean') errors.push('active must be a boolean');
+if (input.nextRunAt !== undefined && input.nextRunAt !== null && !(input.nextRunAt instanceof Date)) errors.push('nextRunAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateScheduleUpdate(input: ScheduleUpdate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.cron !== undefined && typeof input.cron !== 'string') errors.push('cron must be a string');
+if (input.ownerId !== undefined && typeof input.ownerId !== 'string') errors.push('ownerId must be a string');
+if (input.active !== undefined && typeof input.active !== 'boolean') errors.push('active must be a boolean');
+if (input.nextRunAt !== undefined && input.nextRunAt !== null && !(input.nextRunAt instanceof Date)) errors.push('nextRunAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidScheduleCreate(input: ScheduleCreate): boolean {
+        return validateScheduleCreate(input).length === 0;
+      }
+
+      export function isValidScheduleUpdate(input: ScheduleUpdate): boolean {
+        return validateScheduleUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownScheduleField(field: string): boolean {
+        return [
+          'id',
+  'name',
+  'cron',
+  'ownerId',
+  'active',
+  'nextRunAt',
+  'createdAt',
+        ].includes(field);
+      }

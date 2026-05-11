@@ -1,0 +1,119 @@
+import type { Certificate, CertificateCreate, CertificateUpdate } from './model';
+import { CertificateRepository, CertificateNotFoundError } from './repository';
+import { validateCertificateCreate, validateCertificateUpdate } from './validator';
+
+export interface CertificateServiceDeps {
+  repository: CertificateRepository;
+  clock?: () => Date;
+  logger?: (msg: string, meta?: Record<string, unknown>) => void;
+}
+
+export interface ListCertificateOptions {
+  offset?: number;
+  limit?: number;
+  sortBy?: keyof Certificate;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Business-logic layer above CertificateRepository. Performs validation, dispatches
+ * derived events, and surfaces structured errors. Synchronous to keep the fixture
+ * deterministic for tests.
+ */
+export class CertificateService {
+  private readonly repo: CertificateRepository;
+  private readonly clock: () => Date;
+  private readonly logger: (msg: string, meta?: Record<string, unknown>) => void;
+
+  constructor(deps: CertificateServiceDeps) {
+    this.repo = deps.repository;
+    this.clock = deps.clock ?? (() => new Date());
+    this.logger = deps.logger ?? (() => { /* noop */ });
+  }
+
+  create(input: CertificateCreate): Certificate {
+    const errors = validateCertificateCreate(input);
+    if (errors.length > 0) throw new CertificateValidationError(errors);
+    const created = this.repo.insert(input);
+    this.logger('CertificateService.create', { id: created.id });
+    return created;
+  }
+
+  get(id: string): Certificate {
+    try {
+      return this.repo.requireById(id);
+    } catch (err) {
+      if (err instanceof CertificateNotFoundError) throw err;
+      throw new CertificateServiceError(`get failed: ${(err as Error).message}`);
+    }
+  }
+
+  tryGet(id: string): Certificate | undefined {
+    return this.repo.findById(id);
+  }
+
+  update(id: string, patch: CertificateUpdate): Certificate {
+    const errors = validateCertificateUpdate(patch);
+    if (errors.length > 0) throw new CertificateValidationError(errors);
+    const updated = this.repo.update(id, patch);
+    this.logger('CertificateService.update', { id });
+    return updated;
+  }
+
+  delete(id: string): void {
+    const existed = this.repo.delete(id);
+    if (!existed) throw new CertificateNotFoundError(id);
+    this.logger('CertificateService.delete', { id });
+  }
+
+  list(options: ListCertificateOptions = {}): Certificate[] {
+    const offset = options.offset ?? 0;
+    const limit = options.limit ?? 50;
+    if (options.sortBy) {
+      const sorted = this.repo.sortedBy(options.sortBy, options.order);
+      return sorted.slice(offset, offset + limit);
+    }
+    return this.repo.paginate(offset, limit);
+  }
+
+  countAll(): number {
+    return this.repo.count();
+  }
+
+  batchCreate(inputs: CertificateCreate[]): Certificate[] {
+    for (const input of inputs) {
+      const errors = validateCertificateCreate(input);
+      if (errors.length > 0) throw new CertificateValidationError(errors);
+    }
+    return this.repo.batchInsert(inputs);
+  }
+
+  exists(id: string): boolean {
+    return this.repo.findById(id) !== undefined;
+  }
+
+  /** Bulk delete with no failure semantics; safe to call with non-existent ids. */
+  bulkDelete(ids: string[]): number {
+    let deleted = 0;
+    for (const id of ids) if (this.repo.delete(id)) deleted++;
+    return deleted;
+  }
+
+  searchByField<K extends keyof Certificate>(field: K, value: Certificate[K]): Certificate[] {
+    return this.repo.filter((entity) => entity[field] === value);
+  }
+}
+
+export class CertificateServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CertificateServiceError';
+  }
+}
+
+export class CertificateValidationError extends Error {
+  constructor(public readonly errors: string[]) {
+    super(`Certificate validation failed: ${errors.join('; ')}`);
+    this.name = 'CertificateValidationError';
+  }
+}

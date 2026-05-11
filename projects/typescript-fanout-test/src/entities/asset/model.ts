@@ -1,0 +1,69 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Asset {
+        id: string;
+releaseId: string;
+name: string;
+contentType: string;
+amountCents: number;
+downloadCount: string;
+createdAt: Date | null;
+      }
+
+      export interface AssetCreate {
+        releaseId: string;
+name: string;
+contentType: string;
+amountCents: number;
+downloadCount: string;
+      }
+
+      export interface AssetUpdate {
+        releaseId?: string;
+name?: string;
+contentType?: string;
+amountCents?: number;
+downloadCount?: string;
+createdAt?: Date | null;
+      }
+
+      export const AssetFields = ['id', 'releaseId', 'name', 'contentType', 'amountCents', 'downloadCount', 'createdAt'] as const;
+      export type AssetField = (typeof AssetFields)[number];
+
+      /** Construct a new Asset with sensible defaults for optional fields. */
+      export function makeAsset(input: Partial<Asset> & { id: string }): Asset {
+        return {
+          id: input.id,
+          releaseId: input.releaseId ?? '',
+          name: input.name ?? '',
+          contentType: input.contentType ?? '',
+          amountCents: input.amountCents ?? 0,
+          downloadCount: input.downloadCount ?? '',
+          createdAt: input.createdAt ?? null,
+        } as Asset;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateAsset(current: Asset, patch: AssetUpdate): Asset {
+        const merged: Asset = { ...current };
+        for (const key of Object.keys(patch) as AssetField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickAssetFields(entity: Asset, fields: AssetField[]): Partial<Asset> {
+        const out: Partial<Asset> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneAsset(entity: Asset): Asset {
+        return JSON.parse(JSON.stringify(entity)) as Asset;
+      }

@@ -1,0 +1,41 @@
+      import type { LabelCreate, LabelUpdate } from './model';
+
+      export function validateLabelCreate(input: LabelCreate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.color !== undefined && typeof input.color !== 'string') errors.push('color must be a string');
+if (input.repositoryId !== undefined && typeof input.repositoryId !== 'string') errors.push('repositoryId must be a string');
+if (input.description !== undefined && typeof input.description !== 'string') errors.push('description must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateLabelUpdate(input: LabelUpdate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.color !== undefined && typeof input.color !== 'string') errors.push('color must be a string');
+if (input.repositoryId !== undefined && typeof input.repositoryId !== 'string') errors.push('repositoryId must be a string');
+if (input.description !== undefined && typeof input.description !== 'string') errors.push('description must be a string');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidLabelCreate(input: LabelCreate): boolean {
+        return validateLabelCreate(input).length === 0;
+      }
+
+      export function isValidLabelUpdate(input: LabelUpdate): boolean {
+        return validateLabelUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownLabelField(field: string): boolean {
+        return [
+          'id',
+  'name',
+  'color',
+  'repositoryId',
+  'description',
+  'createdAt',
+        ].includes(field);
+      }

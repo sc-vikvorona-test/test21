@@ -1,0 +1,70 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Alert {
+        id: string;
+ruleId: string;
+subjectId: string;
+severity: string;
+status: string;
+firedAt: Date | null;
+resolvedAt: Date | null;
+      }
+
+      export interface AlertCreate {
+        ruleId: string;
+subjectId: string;
+severity: string;
+status: string;
+firedAt: Date | null;
+resolvedAt: Date | null;
+      }
+
+      export interface AlertUpdate {
+        ruleId?: string;
+subjectId?: string;
+severity?: string;
+status?: string;
+firedAt?: Date | null;
+resolvedAt?: Date | null;
+      }
+
+      export const AlertFields = ['id', 'ruleId', 'subjectId', 'severity', 'status', 'firedAt', 'resolvedAt'] as const;
+      export type AlertField = (typeof AlertFields)[number];
+
+      /** Construct a new Alert with sensible defaults for optional fields. */
+      export function makeAlert(input: Partial<Alert> & { id: string }): Alert {
+        return {
+          id: input.id,
+          ruleId: input.ruleId ?? '',
+          subjectId: input.subjectId ?? '',
+          severity: input.severity ?? '',
+          status: input.status ?? '',
+          firedAt: input.firedAt ?? null,
+          resolvedAt: input.resolvedAt ?? null,
+        } as Alert;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateAlert(current: Alert, patch: AlertUpdate): Alert {
+        const merged: Alert = { ...current };
+        for (const key of Object.keys(patch) as AlertField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickAlertFields(entity: Alert, fields: AlertField[]): Partial<Alert> {
+        const out: Partial<Alert> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneAlert(entity: Alert): Alert {
+        return JSON.parse(JSON.stringify(entity)) as Alert;
+      }

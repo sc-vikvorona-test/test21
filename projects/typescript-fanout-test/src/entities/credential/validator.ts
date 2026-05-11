@@ -1,0 +1,41 @@
+      import type { CredentialCreate, CredentialUpdate } from './model';
+
+      export function validateCredentialCreate(input: CredentialCreate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.ownerId !== undefined && typeof input.ownerId !== 'string') errors.push('ownerId must be a string');
+if (input.kind !== undefined && typeof input.kind !== 'string') errors.push('kind must be a string');
+if (input.expiresAt !== undefined && input.expiresAt !== null && !(input.expiresAt instanceof Date)) errors.push('expiresAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateCredentialUpdate(input: CredentialUpdate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.ownerId !== undefined && typeof input.ownerId !== 'string') errors.push('ownerId must be a string');
+if (input.kind !== undefined && typeof input.kind !== 'string') errors.push('kind must be a string');
+if (input.expiresAt !== undefined && input.expiresAt !== null && !(input.expiresAt instanceof Date)) errors.push('expiresAt must be a Date or null');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidCredentialCreate(input: CredentialCreate): boolean {
+        return validateCredentialCreate(input).length === 0;
+      }
+
+      export function isValidCredentialUpdate(input: CredentialUpdate): boolean {
+        return validateCredentialUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownCredentialField(field: string): boolean {
+        return [
+          'id',
+  'name',
+  'ownerId',
+  'kind',
+  'expiresAt',
+  'createdAt',
+        ].includes(field);
+      }

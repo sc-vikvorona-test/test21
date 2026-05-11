@@ -1,0 +1,126 @@
+import type { LogEntryService } from './service';
+import { LogEntryValidationError, LogEntryServiceError } from './service';
+import { LogEntryNotFoundError } from './repository';
+
+export interface HttpRequest {
+  method: string;
+  path: string;
+  params: Record<string, string>;
+  query: Record<string, string>;
+  body: unknown;
+  headers: Record<string, string>;
+}
+
+export interface HttpResponse {
+  status: number;
+  body: unknown;
+  headers?: Record<string, string>;
+}
+
+export class LogEntryController {
+  constructor(private readonly service: LogEntryService) {}
+
+  handleCreate(req: HttpRequest): HttpResponse {
+    try {
+      const created = this.service.create(req.body as never);
+      return { status: 201, body: created };
+    } catch (err) {
+      return errorToResponse(err);
+    }
+  }
+
+  handleGet(req: HttpRequest): HttpResponse {
+    const id = req.params.id;
+    if (!id) return { status: 400, body: { error: 'id required' } };
+    try {
+      return { status: 200, body: this.service.get(id) };
+    } catch (err) {
+      return errorToResponse(err);
+    }
+  }
+
+  handleUpdate(req: HttpRequest): HttpResponse {
+    const id = req.params.id;
+    if (!id) return { status: 400, body: { error: 'id required' } };
+    try {
+      return { status: 200, body: this.service.update(id, req.body as never) };
+    } catch (err) {
+      return errorToResponse(err);
+    }
+  }
+
+  handleDelete(req: HttpRequest): HttpResponse {
+    const id = req.params.id;
+    if (!id) return { status: 400, body: { error: 'id required' } };
+    try {
+      this.service.delete(id);
+      return { status: 204, body: null };
+    } catch (err) {
+      return errorToResponse(err);
+    }
+  }
+
+  handleList(req: HttpRequest): HttpResponse {
+    const offset = req.query.offset ? Number(req.query.offset) : 0;
+    const limit = req.query.limit ? Number(req.query.limit) : 50;
+    const sortBy = req.query.sortBy as keyof LogEntry | undefined;
+    const order = (req.query.order as 'asc' | 'desc' | undefined);
+    if (Number.isNaN(offset) || offset < 0) {
+      return { status: 400, body: { error: 'offset must be a non-negative integer' } };
+    }
+    if (Number.isNaN(limit) || limit < 1 || limit > 1000) {
+      return { status: 400, body: { error: 'limit must be between 1 and 1000' } };
+    }
+    const items = this.service.list({ offset, limit, sortBy, order });
+    return { status: 200, body: { items, total: this.service.countAll(), offset, limit } };
+  }
+
+  handleBatchCreate(req: HttpRequest): HttpResponse {
+    if (!Array.isArray(req.body)) {
+      return { status: 400, body: { error: 'body must be an array' } };
+    }
+    try {
+      const created = this.service.batchCreate(req.body as never);
+      return { status: 201, body: created };
+    } catch (err) {
+      return errorToResponse(err);
+    }
+  }
+
+  handleBulkDelete(req: HttpRequest): HttpResponse {
+    const ids = (req.body as { ids?: string[] }).ids;
+    if (!Array.isArray(ids)) return { status: 400, body: { error: 'ids array required' } };
+    const deleted = this.service.bulkDelete(ids);
+    return { status: 200, body: { deleted } };
+  }
+
+  register(routes: HttpRoute[]): void {
+    const prefix = '/logEntries';
+    routes.push({ method: 'POST', path: prefix, handler: (req) => this.handleCreate(req) });
+    routes.push({ method: 'GET', path: `${prefix}/:id`, handler: (req) => this.handleGet(req) });
+    routes.push({ method: 'PATCH', path: `${prefix}/:id`, handler: (req) => this.handleUpdate(req) });
+    routes.push({ method: 'DELETE', path: `${prefix}/:id`, handler: (req) => this.handleDelete(req) });
+    routes.push({ method: 'GET', path: prefix, handler: (req) => this.handleList(req) });
+    routes.push({ method: 'POST', path: `${prefix}:batch`, handler: (req) => this.handleBatchCreate(req) });
+    routes.push({ method: 'POST', path: `${prefix}:bulkDelete`, handler: (req) => this.handleBulkDelete(req) });
+  }
+}
+
+export interface HttpRoute {
+  method: string;
+  path: string;
+  handler: (req: HttpRequest) => HttpResponse;
+}
+
+function errorToResponse(err: unknown): HttpResponse {
+  if (err instanceof LogEntryNotFoundError) {
+    return { status: 404, body: { error: err.message } };
+  }
+  if (err instanceof LogEntryValidationError) {
+    return { status: 422, body: { error: err.message, fields: err.errors } };
+  }
+  if (err instanceof LogEntryServiceError) {
+    return { status: 500, body: { error: err.message } };
+  }
+  return { status: 500, body: { error: 'internal error' } };
+}

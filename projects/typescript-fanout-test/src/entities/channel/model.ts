@@ -1,0 +1,65 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Channel {
+        id: string;
+name: string;
+workspaceId: string;
+visibility: string;
+memberCount: number;
+createdAt: Date | null;
+      }
+
+      export interface ChannelCreate {
+        name: string;
+workspaceId: string;
+visibility: string;
+memberCount: number;
+      }
+
+      export interface ChannelUpdate {
+        name?: string;
+workspaceId?: string;
+visibility?: string;
+memberCount?: number;
+createdAt?: Date | null;
+      }
+
+      export const ChannelFields = ['id', 'name', 'workspaceId', 'visibility', 'memberCount', 'createdAt'] as const;
+      export type ChannelField = (typeof ChannelFields)[number];
+
+      /** Construct a new Channel with sensible defaults for optional fields. */
+      export function makeChannel(input: Partial<Channel> & { id: string }): Channel {
+        return {
+          id: input.id,
+          name: input.name ?? '',
+          workspaceId: input.workspaceId ?? '',
+          visibility: input.visibility ?? '',
+          memberCount: input.memberCount ?? 0,
+          createdAt: input.createdAt ?? null,
+        } as Channel;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateChannel(current: Channel, patch: ChannelUpdate): Channel {
+        const merged: Channel = { ...current };
+        for (const key of Object.keys(patch) as ChannelField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickChannelFields(entity: Channel, fields: ChannelField[]): Partial<Channel> {
+        const out: Partial<Channel> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneChannel(entity: Channel): Channel {
+        return JSON.parse(JSON.stringify(entity)) as Channel;
+      }

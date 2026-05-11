@@ -1,0 +1,41 @@
+      import type { CronJobCreate, CronJobUpdate } from './model';
+
+      export function validateCronJobCreate(input: CronJobCreate): string[] {
+        const errors: string[] = [];
+        if (input.scheduleId !== undefined && typeof input.scheduleId !== 'string') errors.push('scheduleId must be a string');
+if (input.command !== undefined && typeof input.command !== 'string') errors.push('command must be a string');
+if (input.status !== undefined && typeof input.status !== 'string') errors.push('status must be a string');
+if (input.lastRunAt !== undefined && input.lastRunAt !== null && !(input.lastRunAt instanceof Date)) errors.push('lastRunAt must be a Date or null');
+if (input.nextRunAt !== undefined && input.nextRunAt !== null && !(input.nextRunAt instanceof Date)) errors.push('nextRunAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateCronJobUpdate(input: CronJobUpdate): string[] {
+        const errors: string[] = [];
+        if (input.scheduleId !== undefined && typeof input.scheduleId !== 'string') errors.push('scheduleId must be a string');
+if (input.command !== undefined && typeof input.command !== 'string') errors.push('command must be a string');
+if (input.status !== undefined && typeof input.status !== 'string') errors.push('status must be a string');
+if (input.lastRunAt !== undefined && input.lastRunAt !== null && !(input.lastRunAt instanceof Date)) errors.push('lastRunAt must be a Date or null');
+if (input.nextRunAt !== undefined && input.nextRunAt !== null && !(input.nextRunAt instanceof Date)) errors.push('nextRunAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidCronJobCreate(input: CronJobCreate): boolean {
+        return validateCronJobCreate(input).length === 0;
+      }
+
+      export function isValidCronJobUpdate(input: CronJobUpdate): boolean {
+        return validateCronJobUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownCronJobField(field: string): boolean {
+        return [
+          'id',
+  'scheduleId',
+  'command',
+  'status',
+  'lastRunAt',
+  'nextRunAt',
+        ].includes(field);
+      }

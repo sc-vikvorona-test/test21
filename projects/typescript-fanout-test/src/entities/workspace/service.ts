@@ -1,0 +1,119 @@
+import type { Workspace, WorkspaceCreate, WorkspaceUpdate } from './model';
+import { WorkspaceRepository, WorkspaceNotFoundError } from './repository';
+import { validateWorkspaceCreate, validateWorkspaceUpdate } from './validator';
+
+export interface WorkspaceServiceDeps {
+  repository: WorkspaceRepository;
+  clock?: () => Date;
+  logger?: (msg: string, meta?: Record<string, unknown>) => void;
+}
+
+export interface ListWorkspaceOptions {
+  offset?: number;
+  limit?: number;
+  sortBy?: keyof Workspace;
+  order?: 'asc' | 'desc';
+}
+
+/**
+ * Business-logic layer above WorkspaceRepository. Performs validation, dispatches
+ * derived events, and surfaces structured errors. Synchronous to keep the fixture
+ * deterministic for tests.
+ */
+export class WorkspaceService {
+  private readonly repo: WorkspaceRepository;
+  private readonly clock: () => Date;
+  private readonly logger: (msg: string, meta?: Record<string, unknown>) => void;
+
+  constructor(deps: WorkspaceServiceDeps) {
+    this.repo = deps.repository;
+    this.clock = deps.clock ?? (() => new Date());
+    this.logger = deps.logger ?? (() => { /* noop */ });
+  }
+
+  create(input: WorkspaceCreate): Workspace {
+    const errors = validateWorkspaceCreate(input);
+    if (errors.length > 0) throw new WorkspaceValidationError(errors);
+    const created = this.repo.insert(input);
+    this.logger('WorkspaceService.create', { id: created.id });
+    return created;
+  }
+
+  get(id: string): Workspace {
+    try {
+      return this.repo.requireById(id);
+    } catch (err) {
+      if (err instanceof WorkspaceNotFoundError) throw err;
+      throw new WorkspaceServiceError(`get failed: ${(err as Error).message}`);
+    }
+  }
+
+  tryGet(id: string): Workspace | undefined {
+    return this.repo.findById(id);
+  }
+
+  update(id: string, patch: WorkspaceUpdate): Workspace {
+    const errors = validateWorkspaceUpdate(patch);
+    if (errors.length > 0) throw new WorkspaceValidationError(errors);
+    const updated = this.repo.update(id, patch);
+    this.logger('WorkspaceService.update', { id });
+    return updated;
+  }
+
+  delete(id: string): void {
+    const existed = this.repo.delete(id);
+    if (!existed) throw new WorkspaceNotFoundError(id);
+    this.logger('WorkspaceService.delete', { id });
+  }
+
+  list(options: ListWorkspaceOptions = {}): Workspace[] {
+    const offset = options.offset ?? 0;
+    const limit = options.limit ?? 50;
+    if (options.sortBy) {
+      const sorted = this.repo.sortedBy(options.sortBy, options.order);
+      return sorted.slice(offset, offset + limit);
+    }
+    return this.repo.paginate(offset, limit);
+  }
+
+  countAll(): number {
+    return this.repo.count();
+  }
+
+  batchCreate(inputs: WorkspaceCreate[]): Workspace[] {
+    for (const input of inputs) {
+      const errors = validateWorkspaceCreate(input);
+      if (errors.length > 0) throw new WorkspaceValidationError(errors);
+    }
+    return this.repo.batchInsert(inputs);
+  }
+
+  exists(id: string): boolean {
+    return this.repo.findById(id) !== undefined;
+  }
+
+  /** Bulk delete with no failure semantics; safe to call with non-existent ids. */
+  bulkDelete(ids: string[]): number {
+    let deleted = 0;
+    for (const id of ids) if (this.repo.delete(id)) deleted++;
+    return deleted;
+  }
+
+  searchByField<K extends keyof Workspace>(field: K, value: Workspace[K]): Workspace[] {
+    return this.repo.filter((entity) => entity[field] === value);
+  }
+}
+
+export class WorkspaceServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'WorkspaceServiceError';
+  }
+}
+
+export class WorkspaceValidationError extends Error {
+  constructor(public readonly errors: string[]) {
+    super(`Workspace validation failed: ${errors.join('; ')}`);
+    this.name = 'WorkspaceValidationError';
+  }
+}

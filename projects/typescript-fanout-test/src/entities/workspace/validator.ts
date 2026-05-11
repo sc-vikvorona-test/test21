@@ -1,0 +1,43 @@
+      import type { WorkspaceCreate, WorkspaceUpdate } from './model';
+
+      export function validateWorkspaceCreate(input: WorkspaceCreate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.organizationId !== undefined && typeof input.organizationId !== 'string') errors.push('organizationId must be a string');
+if (input.visibility !== undefined && typeof input.visibility !== 'string') errors.push('visibility must be a string');
+if (input.memberCount !== undefined && typeof input.memberCount !== 'number') errors.push('memberCount must be a number');
+if (input.memberCount !== undefined && (input.memberCount as number) < 0) errors.push('memberCount must be non-negative');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateWorkspaceUpdate(input: WorkspaceUpdate): string[] {
+        const errors: string[] = [];
+        if (input.name !== undefined && typeof input.name !== 'string') errors.push('name must be a string');
+if (input.organizationId !== undefined && typeof input.organizationId !== 'string') errors.push('organizationId must be a string');
+if (input.visibility !== undefined && typeof input.visibility !== 'string') errors.push('visibility must be a string');
+if (input.memberCount !== undefined && typeof input.memberCount !== 'number') errors.push('memberCount must be a number');
+if (input.memberCount !== undefined && (input.memberCount as number) < 0) errors.push('memberCount must be non-negative');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidWorkspaceCreate(input: WorkspaceCreate): boolean {
+        return validateWorkspaceCreate(input).length === 0;
+      }
+
+      export function isValidWorkspaceUpdate(input: WorkspaceUpdate): boolean {
+        return validateWorkspaceUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownWorkspaceField(field: string): boolean {
+        return [
+          'id',
+  'name',
+  'organizationId',
+  'visibility',
+  'memberCount',
+  'createdAt',
+        ].includes(field);
+      }

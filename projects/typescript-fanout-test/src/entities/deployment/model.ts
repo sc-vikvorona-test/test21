@@ -1,0 +1,69 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Deployment {
+        id: string;
+projectId: string;
+environment: string;
+commitSha: string;
+status: string;
+deployedBy: string;
+createdAt: Date | null;
+      }
+
+      export interface DeploymentCreate {
+        projectId: string;
+environment: string;
+commitSha: string;
+status: string;
+deployedBy: string;
+      }
+
+      export interface DeploymentUpdate {
+        projectId?: string;
+environment?: string;
+commitSha?: string;
+status?: string;
+deployedBy?: string;
+createdAt?: Date | null;
+      }
+
+      export const DeploymentFields = ['id', 'projectId', 'environment', 'commitSha', 'status', 'deployedBy', 'createdAt'] as const;
+      export type DeploymentField = (typeof DeploymentFields)[number];
+
+      /** Construct a new Deployment with sensible defaults for optional fields. */
+      export function makeDeployment(input: Partial<Deployment> & { id: string }): Deployment {
+        return {
+          id: input.id,
+          projectId: input.projectId ?? '',
+          environment: input.environment ?? '',
+          commitSha: input.commitSha ?? '',
+          status: input.status ?? '',
+          deployedBy: input.deployedBy ?? '',
+          createdAt: input.createdAt ?? null,
+        } as Deployment;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateDeployment(current: Deployment, patch: DeploymentUpdate): Deployment {
+        const merged: Deployment = { ...current };
+        for (const key of Object.keys(patch) as DeploymentField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickDeploymentFields(entity: Deployment, fields: DeploymentField[]): Partial<Deployment> {
+        const out: Partial<Deployment> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneDeployment(entity: Deployment): Deployment {
+        return JSON.parse(JSON.stringify(entity)) as Deployment;
+      }

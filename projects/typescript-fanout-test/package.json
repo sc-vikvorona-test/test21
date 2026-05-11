@@ -1,0 +1,15 @@
+{
+  "name": "typescript-fanout-test",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Synthetic ~15k-LOC TS fixture for testing the split-review K-way fan-out pipeline. Not derived from any external project.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

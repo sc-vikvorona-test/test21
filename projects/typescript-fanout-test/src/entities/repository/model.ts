@@ -1,0 +1,69 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Repository {
+        id: string;
+name: string;
+projectId: string;
+url: string;
+defaultBranch: string;
+isPrivate: boolean;
+createdAt: Date | null;
+      }
+
+      export interface RepositoryCreate {
+        name: string;
+projectId: string;
+url: string;
+defaultBranch: string;
+isPrivate: boolean;
+      }
+
+      export interface RepositoryUpdate {
+        name?: string;
+projectId?: string;
+url?: string;
+defaultBranch?: string;
+isPrivate?: boolean;
+createdAt?: Date | null;
+      }
+
+      export const RepositoryFields = ['id', 'name', 'projectId', 'url', 'defaultBranch', 'isPrivate', 'createdAt'] as const;
+      export type RepositoryField = (typeof RepositoryFields)[number];
+
+      /** Construct a new Repository with sensible defaults for optional fields. */
+      export function makeRepository(input: Partial<Repository> & { id: string }): Repository {
+        return {
+          id: input.id,
+          name: input.name ?? '',
+          projectId: input.projectId ?? '',
+          url: input.url ?? '',
+          defaultBranch: input.defaultBranch ?? '',
+          isPrivate: input.isPrivate ?? false,
+          createdAt: input.createdAt ?? null,
+        } as Repository;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateRepository(current: Repository, patch: RepositoryUpdate): Repository {
+        const merged: Repository = { ...current };
+        for (const key of Object.keys(patch) as RepositoryField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickRepositoryFields(entity: Repository, fields: RepositoryField[]): Partial<Repository> {
+        const out: Partial<Repository> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneRepository(entity: Repository): Repository {
+        return JSON.parse(JSON.stringify(entity)) as Repository;
+      }

@@ -1,0 +1,44 @@
+      import type { UserCreate, UserUpdate } from './model';
+
+      export function validateUserCreate(input: UserCreate): string[] {
+        const errors: string[] = [];
+        if (input.email !== undefined && typeof input.email !== 'string') errors.push('email must be a string');
+if (input.displayName !== undefined && typeof input.displayName !== 'string') errors.push('displayName must be a string');
+if (input.passwordHash !== undefined && typeof input.passwordHash !== 'string') errors.push('passwordHash must be a string');
+if (input.role !== undefined && typeof input.role !== 'string') errors.push('role must be a string');
+if (input.verified !== undefined && typeof input.verified !== 'boolean') errors.push('verified must be a boolean');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateUserUpdate(input: UserUpdate): string[] {
+        const errors: string[] = [];
+        if (input.email !== undefined && typeof input.email !== 'string') errors.push('email must be a string');
+if (input.displayName !== undefined && typeof input.displayName !== 'string') errors.push('displayName must be a string');
+if (input.passwordHash !== undefined && typeof input.passwordHash !== 'string') errors.push('passwordHash must be a string');
+if (input.role !== undefined && typeof input.role !== 'string') errors.push('role must be a string');
+if (input.verified !== undefined && typeof input.verified !== 'boolean') errors.push('verified must be a boolean');
+if (input.createdAt !== undefined && input.createdAt !== null && !(input.createdAt instanceof Date)) errors.push('createdAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidUserCreate(input: UserCreate): boolean {
+        return validateUserCreate(input).length === 0;
+      }
+
+      export function isValidUserUpdate(input: UserUpdate): boolean {
+        return validateUserUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownUserField(field: string): boolean {
+        return [
+          'id',
+  'email',
+  'displayName',
+  'passwordHash',
+  'role',
+  'verified',
+  'createdAt',
+        ].includes(field);
+      }

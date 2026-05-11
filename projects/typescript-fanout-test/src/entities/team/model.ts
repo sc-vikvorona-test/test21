@@ -1,0 +1,66 @@
+      // Synthetic fixture — generated for split-review fan-out testing.
+      // Not derived from any external codebase.
+
+      export interface Team {
+        id: string;
+name: string;
+organizationId: string;
+slug: string;
+parentTeamId: string;
+memberCount: number;
+      }
+
+      export interface TeamCreate {
+        name: string;
+organizationId: string;
+slug: string;
+parentTeamId: string;
+memberCount: number;
+      }
+
+      export interface TeamUpdate {
+        name?: string;
+organizationId?: string;
+slug?: string;
+parentTeamId?: string;
+memberCount?: number;
+      }
+
+      export const TeamFields = ['id', 'name', 'organizationId', 'slug', 'parentTeamId', 'memberCount'] as const;
+      export type TeamField = (typeof TeamFields)[number];
+
+      /** Construct a new Team with sensible defaults for optional fields. */
+      export function makeTeam(input: Partial<Team> & { id: string }): Team {
+        return {
+          id: input.id,
+          name: input.name ?? '',
+          organizationId: input.organizationId ?? '',
+          slug: input.slug ?? '',
+          parentTeamId: input.parentTeamId ?? '',
+          memberCount: input.memberCount ?? 0,
+        } as Team;
+      }
+
+      /** Shallow merge for partial updates. Reject identifier mutation. */
+      export function updateTeam(current: Team, patch: TeamUpdate): Team {
+        const merged: Team = { ...current };
+        for (const key of Object.keys(patch) as TeamField[]) {
+          if (key === 'id') continue;
+          const value = (patch as Record<string, unknown>)[key];
+          if (value === undefined) continue;
+          (merged as Record<string, unknown>)[key] = value;
+        }
+        return merged;
+      }
+
+      export function pickTeamFields(entity: Team, fields: TeamField[]): Partial<Team> {
+        const out: Partial<Team> = {};
+        for (const f of fields) {
+          (out as Record<string, unknown>)[f] = (entity as Record<string, unknown>)[f];
+        }
+        return out;
+      }
+
+      export function cloneTeam(entity: Team): Team {
+        return JSON.parse(JSON.stringify(entity)) as Team;
+      }

@@ -1,0 +1,41 @@
+      import type { SubscriptionCreate, SubscriptionUpdate } from './model';
+
+      export function validateSubscriptionCreate(input: SubscriptionCreate): string[] {
+        const errors: string[] = [];
+        if (input.billingAccountId !== undefined && typeof input.billingAccountId !== 'string') errors.push('billingAccountId must be a string');
+if (input.plan !== undefined && typeof input.plan !== 'string') errors.push('plan must be a string');
+if (input.interval !== undefined && typeof input.interval !== 'string') errors.push('interval must be a string');
+if (input.renewsAt !== undefined && input.renewsAt !== null && !(input.renewsAt instanceof Date)) errors.push('renewsAt must be a Date or null');
+if (input.canceledAt !== undefined && input.canceledAt !== null && !(input.canceledAt instanceof Date)) errors.push('canceledAt must be a Date or null');
+        return errors;
+      }
+
+      export function validateSubscriptionUpdate(input: SubscriptionUpdate): string[] {
+        const errors: string[] = [];
+        if (input.billingAccountId !== undefined && typeof input.billingAccountId !== 'string') errors.push('billingAccountId must be a string');
+if (input.plan !== undefined && typeof input.plan !== 'string') errors.push('plan must be a string');
+if (input.interval !== undefined && typeof input.interval !== 'string') errors.push('interval must be a string');
+if (input.renewsAt !== undefined && input.renewsAt !== null && !(input.renewsAt instanceof Date)) errors.push('renewsAt must be a Date or null');
+if (input.canceledAt !== undefined && input.canceledAt !== null && !(input.canceledAt instanceof Date)) errors.push('canceledAt must be a Date or null');
+        return errors;
+      }
+
+      export function isValidSubscriptionCreate(input: SubscriptionCreate): boolean {
+        return validateSubscriptionCreate(input).length === 0;
+      }
+
+      export function isValidSubscriptionUpdate(input: SubscriptionUpdate): boolean {
+        return validateSubscriptionUpdate(input).length === 0;
+      }
+
+      /** Light field-name guard for query parameters. */
+      export function isKnownSubscriptionField(field: string): boolean {
+        return [
+          'id',
+  'billingAccountId',
+  'plan',
+  'interval',
+  'renewsAt',
+  'canceledAt',
+        ].includes(field);
+      }

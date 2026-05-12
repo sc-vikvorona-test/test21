@@ -1,5 +1,7 @@
 function compute(a, b) {
-  const result = a + b;  // CONFLICT_ZONE
-  return result;
+  // RESOLVED: keep both operations, expose them separately
+  const sum = a + b;
+  const product = a * b;
+  return { sum, product };
 }
 module.exports = { compute };

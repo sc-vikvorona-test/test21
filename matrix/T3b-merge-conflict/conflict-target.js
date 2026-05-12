@@ -1,6 +1,5 @@
 function compute(a, b) {
-  // round-2: main now divides
-  const result = a / b;
+  const result = Math.pow(a, b);  // r3 main: power
   return result;
 }
 module.exports = { compute };

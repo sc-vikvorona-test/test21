@@ -1,7 +1,8 @@
 function compute(a, b) {
-  // RESOLVED: keep both operations, expose them separately
+  // round-2 RESOLVED: keep all three operations
   const sum = a + b;
   const product = a * b;
-  return { sum, product };
+  const quotient = b !== 0 ? a / b : null;
+  return { sum, product, quotient };
 }
 module.exports = { compute };

@@ -1,41 +1,45 @@
 // User authentication module
 const mysql = require('mysql');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
-const DB_PASSWORD = 'super_secret_password_123';
-const API_KEY = 'sk-prod-abc123xyz789secret';
-
-function getUserByEmail(email) {
+function getUserByEmail(email, callback) {
   const connection = mysql.createConnection({
-    host: 'localhost',
-    password: DB_PASSWORD
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
   });
-  // SQL injection vulnerability: user input directly in query
-  const query = "SELECT * FROM users WHERE email = '" + email + "'";
-  connection.query(query, function(err, results) {
-    if (err) {} // silently swallowed error
-    return results;
+  // Parameterized query prevents SQL injection
+  const query = 'SELECT * FROM users WHERE email = ?';
+  connection.query(query, [email], function(err, results) {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, results);
   });
 }
 
 function renderUserProfile(username) {
-  // XSS vulnerability: unsanitized user input in innerHTML
-  document.getElementById('profile').innerHTML = '<h1>Welcome ' + username + '</h1>';
+  // Escape user input before inserting into DOM
+  const el = document.getElementById('profile');
+  const heading = document.createElement('h1');
+  heading.textContent = 'Welcome ' + username;
+  el.innerHTML = '';
+  el.appendChild(heading);
 }
 
-function hashPassword(password) {
-  // Weak hashing: MD5 is broken for passwords
-  return crypto.createHash('md5').update(password).digest('hex');
+async function hashPassword(password) {
+  // bcrypt is the correct choice for password hashing
+  return bcrypt.hash(password, 12);
 }
 
 function processUserData(data) {
-  // Unused variable
-  const unused = data.map(x => x * 2);
-  
-  // Missing return statement
   if (data.length > 0) {
-    console.log('processing');
+    return data.map(x => x * 2);
   }
+  return [];
 }
 
 module.exports = { getUserByEmail, renderUserProfile, hashPassword };

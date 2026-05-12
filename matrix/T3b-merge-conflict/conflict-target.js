@@ -1,5 +1,6 @@
 function compute(a, b) {
-  const result = a * b;  // CONFLICT_ZONE — main says multiply
+  // round-2: main now divides
+  const result = a / b;
   return result;
 }
 module.exports = { compute };

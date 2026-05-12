@@ -1,8 +1,9 @@
 function compute(a, b) {
-  // round-2 RESOLVED: keep all three operations
+  // r3 RESOLVED: all four operations
   const sum = a + b;
   const product = a * b;
   const quotient = b !== 0 ? a / b : null;
-  return { sum, product, quotient };
+  const power = Math.pow(a, b);
+  return { sum, product, quotient, power };
 }
 module.exports = { compute };

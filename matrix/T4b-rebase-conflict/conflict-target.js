@@ -1,1 +1,1 @@
-r5-conflict-max
+r5-RESOLVED

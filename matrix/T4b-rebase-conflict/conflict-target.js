@@ -1,6 +1,5 @@
 function compute(a, b) {
-  // round-2 main: modulus
-  const result = a % b;
+  const result = Math.max(a, b);  // r3 main: max
   return result;
 }
 module.exports = { compute };

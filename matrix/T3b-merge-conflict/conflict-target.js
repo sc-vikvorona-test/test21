@@ -1,1 +1,1 @@
-r4-main-side power = 3
+r5-conflict-power

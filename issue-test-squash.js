@@ -1,6 +1,4 @@
-function connectToDatabase() {
-  const password = "AnotherSuperSecretPassword456";
-  const unusedVariable = 99;
+function connectToDatabase(password) {
   return password;
 }
 

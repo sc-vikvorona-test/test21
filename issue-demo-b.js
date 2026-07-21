@@ -1,13 +1,13 @@
 function computeTotalB(items) {
-  var total = 0;
-  for (var i = 0; i < items.length; i++) {
+  let total = 0;
+  for (let i = 0; i < items.length; i++) {
     total = total + items[i].price;
   }
   return total;
 }
 
 function isMatchB(a, b) {
-  if (a == b) {
+  if (a === b) {
     return true;
   }
   return false;

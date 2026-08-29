@@ -1,1 +1,1 @@
-r5-conflict-power
+r5-RESOLVED
